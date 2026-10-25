@@ -1,126 +1,24 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8">
+<html lang="ja">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>配達収支</title>
+<meta name="robots" content="noindex">
+<title>旧ページのご案内 | 配達収支</title>
 <style>
-:root{--bg:#eef1f4;--cd:#fff;--tx:#16202a;--sb:#66717d;--ac:#0f766e;--rd:#d93a3f;--gn:#188a4e;--or:#c76a00;--ln:#dde2e7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1418;--cd:#1a2128;--tx:#eef2f5;--sb:#93a0ab;--ac:#3cc3b5;--rd:#ff7a7e;--gn:#4cc787;--or:#f3a64a;--ln:#2a343d}}
-:root[data-theme="dark"]{--bg:#0f1418;--cd:#1a2128;--tx:#eef2f5;--sb:#93a0ab;--ac:#3cc3b5;--rd:#ff7a7e;--gn:#4cc787;--or:#f3a64a;--ln:#2a343d}
-*{box-sizing:border-box}html,body{margin:0}
-body{background:var(--bg);color:var(--tx);font:16px/1.5 "Hiragino Sans","Noto Sans JP",system-ui,sans-serif;background-color:var(--bg)}
-main{max-width:520px;margin:0 auto;padding:16px 16px 96px;display:grid;gap:12px}
-.card{background:var(--cd);border-radius:14px;padding:14px;border:1px solid var(--ln)}
-.r{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:3px 0}
-.s{color:var(--sb);font-size:13px;margin:0}
-input,select{font:inherit;color:inherit;background:var(--cd);border:1px solid var(--ln);border-radius:10px;padding:9px 10px;min-width:0}
-input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
-.r input,.r select{text-align:right;max-width:150px}
-.pri{font:inherit;font-weight:700;background:var(--ac);color:#fff;border:0;border-radius:12px;padding:12px;width:100%}
-.bar{height:10px;background:var(--ln);border-radius:99px;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;background:var(--ac)}
-.big{font-size:34px;font-weight:800;color:var(--or);line-height:1.2}
-.g{color:var(--gn);font-weight:700}.n{color:var(--rd);font-weight:700}
-.cr{display:grid;grid-template-columns:1fr 62px 92px 76px;gap:6px;align-items:center}
-.cr span{text-align:right;font-size:14px}.cr input{text-align:right;width:100%}
-.hd{display:grid;grid-template-columns:1fr 62px 92px 76px;gap:6px;text-align:right}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.k{text-align:center;padding:10px 4px}.k small{display:block;font-size:11px;color:var(--sb)}.k b{font-size:15px}
-.k.b{background:color-mix(in srgb,var(--ac) 12%,var(--cd))}.k.o{background:color-mix(in srgb,var(--or) 13%,var(--cd))}.k.e{background:color-mix(in srgb,var(--gn) 13%,var(--cd))}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
-.cal .w{font-size:12px;color:var(--sb)}
-.dc{font:inherit;background:none;border:0;border-radius:8px;padding:5px 0;min-height:48px;color:var(--tx)}
-.dc small{display:block;font-size:10px;color:var(--sb);min-height:14px}
-.dc.rd{color:var(--rd)}.dc.sel{background:color-mix(in srgb,var(--ac) 22%,var(--cd))}
-.mn{display:flex;justify-content:space-between;align-items:center;font-weight:700}
-.mn button,.x{font:inherit;background:none;border:0;color:var(--ac);padding:6px 12px}
-.flip{transform:rotate(180deg);text-align:center}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.two button{font:inherit;padding:11px;border-radius:12px;border:1px solid var(--ln);background:var(--cd);color:var(--tx)}
-nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--cd);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav button{flex:1;font:inherit;font-size:13px;background:none;border:0;padding:12px 0;color:var(--sb)}
-nav button.on{color:var(--ac);font-weight:700}
-</style></head><body>
-<main id="v"></main>
-<nav id="t"><button data-t="m">マルチ</button><button data-t="e">経費</button><button data-t="c">カレンダー</button><button data-t="o">お釣り</button></nav>
-<script>
-const P=["Uber Eats","出前館","Rocket Now","その他"],C=["ガソリン代","食費","駐輪代","その他"];
-let S=null;try{S=JSON.parse(localStorage.getItem("deli"))}catch(e){}
-S=S||{days:{},exp:[],goal:15000};
-const save=()=>{try{localStorage.setItem("deli",JSON.stringify(S))}catch(e){}};
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const yen=n=>(n<0?"-":"")+"¥"+Math.abs(Math.round(n)).toLocaleString("ja-JP");
-const p2=n=>String(n).padStart(2,"0"),key=d=>d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());
-let tab="m",date=key(new Date()),mon=date.slice(0,7);
-const D=k=>S.days[k]||{p:{},h:0};
-const dsum=k=>{const o=D(k);let s=0,c=0;P.forEach(n=>{const q=o.p[n]||{};s+=+q.s||0;c+=+q.c||0});return{s,c,h:+o.h||0}};
-const esum=p=>S.exp.filter(e=>e.d.startsWith(p)).reduce((a,e)=>a+e.amt,0);
-const sal=p=>p.length>9?dsum(p).s:Object.keys(S.days).filter(k=>k.startsWith(p)).reduce((a,k)=>a+dsum(k).s,0);
-const add=(d,k)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+k);
-function base(d){const y=d.getFullYear(),m=d.getMonth()+1,n=d.getDate(),mo=d.getDay()==1,k=y-1980,
-sp=Math.floor(20.8431+.242194*k)-Math.floor(k/4),au=Math.floor(23.2488+.242194*k)-Math.floor(k/4);
-switch(m){case 1:return n==1||(n>7&&n<15&&mo);case 2:return n==11||(n==23&&y>=2020);case 3:return n==sp;case 4:return n==29;case 5:return n>=3&&n<=5;
-case 7:if(y==2020)return n==23||n==24;if(y==2021)return n==22||n==23;return n>14&&n<22&&mo;
-case 8:if(y==2020)return n==10;if(y==2021)return n==8;return n==11;
-case 9:return(n>14&&n<22&&mo)||n==au;case 10:return y!=2020&&y!=2021&&n>7&&n<15&&mo;case 11:return n==3||n==23}return false}
-function hol(d){if(base(d))return 1;let c=d,p;while(base(p=add(c,-1))){if(p.getDay()==0)return 1;c=p}
-return d.getDay()&&base(add(d,-1))&&base(add(d,1))?1:0}
-const row=(a,b)=>`<div class="r"><span>${a}</span><b>${b}</b></div>`;
-const dt=()=>`<label class="r">日付<input type="date" id="dt" value="${date}"></label>`;
-
-function vm(){const o=D(date);return `<div class="card" id="goal"></div>
-<label class="r">目標金額<input id="gl" inputmode="numeric" value="${S.goal||""}"></label>${dt()}
-<label class="r">稼働時間（h）<input id="hr" inputmode="decimal" value="${o.h||""}"></label>
-<div class="card" style="display:grid;gap:8px"><div class="hd s"><span></span><span>件数</span><span>売上</span><span>単価</span></div>
-${P.map((n,i)=>{const q=o.p[n]||{};return `<div class="cr"><b>${n}</b><input inputmode="numeric" value="${q.c||""}"><input inputmode="numeric" value="${q.s||""}"><span id="u${i}">¥0</span></div>`}).join("")}</div>
-<button class="pri" id="sv">この日を保存（上書き）</button><div class="card"><b>日の合計</b><div id="tot"></div></div>`}
-function calc(){let s=0,c=0;$$(".cr").forEach((r,i)=>{const[a,b]=r.querySelectorAll("input"),x=+a.value||0,y=+b.value||0;s+=y;c+=x;$("#u"+i).textContent=yen(x?y/x:0)});
-const h=+$("#hr").value||0,ex=esum(date),g=+S.goal||0,pf=s-ex;
-$("#goal").innerHTML=!g?"目標金額を入力してください":s>=g?`<div class="g" style="font-size:22px">目標達成！</div><p class="s">目標を${yen(g)}達成しました！</p>`:`<span class="s">目標まであと</span><div class="big">${yen(g-s)}</div><span class="s">現在の売上：${yen(s)}</span>`;
-$("#goal").insertAdjacentHTML("beforeend",g?`<div class="bar"><i style="width:${Math.min(100,s/g*100)}%"></i></div>`:"");
-$("#tot").innerHTML=row("売上",yen(s))+row("経費",yen(ex))+row("収支",`<span class="${pf<0?"n":"g"}">${yen(pf)}</span>`)+row("件数",c+" 件")+row("稼働時間",h.toFixed(1)+" 時間")+row("時給",yen(h?s/h:0))+row("1件あたりの単価",yen(c?s/c:0))+row("1時間あたりの件数",(h?c/h:0).toFixed(2)+" 件")+row("1件あたりの時間",(c?h*60/c:0).toFixed(1)+" 分")}
-function bm(){$$("#v input").forEach(i=>i.addEventListener("input",calc));
-$("#gl").oninput=e=>{S.goal=+e.target.value||0;save();calc()};
-$("#sv").onclick=e=>{const p={};$$(".cr").forEach((r,i)=>{const[a,b]=r.querySelectorAll("input");if(+a.value||+b.value)p[P[i]]={c:+a.value||0,s:+b.value||0}});
-const h=+$("#hr").value||0;if(Object.keys(p).length||h)S.days[date]={p,h};else delete S.days[date];save();e.target.textContent="保存しました";setTimeout(()=>e.target.textContent="この日を保存（上書き）",1200)};calc()}
-
-function ve(){const l=S.exp.filter(e=>e.d==date);
-return `<div class="g3">${[["日",10],["月",7],["年",4]].map(x=>`<div class="card k o"><small>この${x[0]}の経費</small><b>${yen(esum(date.slice(0,x[1])))}</b></div>`).join("")}</div>${dt()}
-<label class="r">項目<select id="ct">${(S.cats||C).map(c=>`<option>${c}</option>`).join("")}</select></label>
-<input id="am" inputmode="numeric" placeholder="金額（円）"><button class="pri" id="ad">経費を追加</button>
-<div class="r"><input id="nc" placeholder="新しい項目名" style="flex:1;max-width:none;text-align:left"><button class="x" id="ac">項目を追加</button></div>
-<div class="card"><b>この日の経費</b>${l.length?l.map(e=>`<div class="r"><span>${e.cat}</span><b>${yen(e.amt)}</b><button class="x" data-id="${e.id}" aria-label="削除">削除</button></div>`).join(""):'<p class="s">記録なし</p>'}</div>`}
-function be(){$("#ac").onclick=()=>{const v=$("#nc").value.trim(),L=S.cats||[...C];if(!v||L.includes(v))return;L.push(v);S.cats=L;save();go()};$("#ad").onclick=()=>{const a=+$("#am").value||0;if(a<=0)return;S.exp.push({id:Date.now(),d:date,cat:$("#ct").value,amt:a});save();go()};
-$$(".x").forEach(b=>b.onclick=()=>{S.exp=S.exp.filter(e=>e.id!=b.dataset.id);save();go()})}
-
-function tot(u){const pre=u=="m"?date.slice(0,7):date.slice(0,4),t={};
-Object.keys(S.days).filter(k=>k.startsWith(pre)).forEach(k=>{const p=D(k).p;Object.keys(p).forEach(n=>{t[n]=t[n]||{s:0,c:0};t[n].s+=p[n].s;t[n].c+=p[n].c})});
-const ex=esum(pre),sl=sal(pre),pf=sl-ex,L=Object.keys(t).sort((a,b)=>t[b].s-t[a].s);
-return `<div class="card"><b>${u=="m"?+date.slice(5,7)+"月":date.slice(0,4)+"年"}の各社累計</b>${L.length?L.map(n=>`<div class="r"><span>${n}</span><b>${yen(t[n].s)}</b></div><p class="s">${t[n].c}件 / 単価 ${yen(t[n].c?t[n].s/t[n].c:0)}</p>`).join(""):'<p class="s">会社別の記録なし</p>'}${row("経費",yen(ex))}${row("収支（売上 − 経費）",`<span class="${pf<0?"n":"g"}">${yen(pf)}</span>`)}</div>`}
-function ann(){const y=date.slice(0,4),d=Object.keys(S.days).filter(k=>k.startsWith(y)).map(dsum),s=d.reduce((a,x)=>a+x.s,0),c=d.reduce((a,x)=>a+x.c,0),h=d.reduce((a,x)=>a+x.h,0),n=d.filter(x=>x.s||x.c||x.h).length;
-return `<div class="card"><b>${y}年のまとめ</b>${row("年間売上",yen(s))}${row("年間配達件数",c+" 件")}${row("記録した日数",n+" 日")}${row("月平均売上",yen(s/12))}${row("年間稼働時間",h.toFixed(1)+" 時間")}${row("平均日給（記録日）",yen(n?s/n:0))}</div>`}
-function vc(){const[y,m]=mon.split("-").map(Number),n=new Date(y,m,0).getDate();let g="";
-["日","月","火","水","木","金","土"].forEach((w,i)=>g+=`<div class="w"${i?"":' style="color:var(--rd)"'}>${w}</div>`);
-for(let i=0;i<new Date(y,m-1,1).getDay();i++)g+="<i></i>";
-for(let d=1;d<=n;d++){const k=mon+"-"+p2(d),t=new Date(y,m-1,d),s=dsum(k).s;
-g+=`<button class="dc${k==date?" sel":""}${t.getDay()==0||hol(t)?" rd":""}" data-k="${k}">${d}<small>${s?s.toLocaleString("ja-JP"):""}</small></button>`}
-const q=[["日",date],["月",date.slice(0,7)],["年",date.slice(0,4)]],r3=(l,f,c)=>`<div class="g3">${q.map(x=>`<div class="card k ${c}"><small>この${x[0]}の${l}</small><b>${yen(f(x[1]))}</b></div>`).join("")}</div>`;
-const o=D(date),sd=dsum(date),ex=S.exp.filter(e=>e.d==date);
-return `<div class="card"><div class="mn"><button data-m="-1" aria-label="前の月">＜</button><span>${y}年${m}月</span><button data-m="1" aria-label="次の月">＞</button></div><div class="cal">${g}</div></div>
-${r3("売上",sal,"b")}${r3("収支",p=>sal(p)-esum(p),"e")}
-<div class="card"><b>${date}</b>${sd.c||sd.h?row("件数",sd.c+" 件")+row("稼働時間",sd.h.toFixed(1)+" 時間"):'<p class="s">売上の記録なし</p>'}
-${Object.keys(o.p).map(n=>row(n,yen(o.p[n].s)+" / "+o.p[n].c+"件")).join("")}${ex.map(e=>row(e.cat,yen(e.amt))).join("")}${sd.c||sd.h||Object.keys(o.p).length?'<button class="x" id="dd" style="color:var(--rd)">この日の売上の記録を削除</button>':""}</div>${tot("m")}${tot("y")}${ann()}`}
-function bc(){const dd=$("#dd");if(dd)dd.onclick=()=>{if(confirm(date+" の売上の記録を削除しますか？\n経費の記録は消えません。")){delete S.days[date];save();go()}};$$(".dc").forEach(b=>b.onclick=()=>{date=b.dataset.k;go()});
-$$(".mn button").forEach(b=>b.onclick=()=>{const[y,m]=mon.split("-").map(Number),d=new Date(y,m-1+ +b.dataset.m,1);mon=key(d).slice(0,7);date=mon==key(new Date()).slice(0,7)?key(new Date()):mon+"-01";go()})}
-
-function vo(){return `<input id="bl" inputmode="numeric" placeholder="会計額"><input id="rc" inputmode="numeric" placeholder="受取額">
-<div class="card flip"><div class="big" id="cv">0 円</div><span id="cl">お釣り</span></div>
-<div class="two"><button id="cr">クリア</button><button id="cc" style="background:var(--ac);color:#fff;border:0">計算</button></div>`}
-function bo(){$("#cc").onclick=()=>{const b=+$("#bl").value,r=+$("#rc").value;if(!$("#bl").value||!$("#rc").value)return;const d=r-b;$("#cv").textContent=Math.abs(d).toLocaleString("ja-JP")+" 円";$("#cl").textContent=d>=0?"お釣り":"不足"};
-$("#cr").onclick=()=>{$("#bl").value=$("#rc").value="";$("#cv").textContent="0 円";$("#cl").textContent="お釣り"}}
-
-const foot=()=>`<div class="card"><p class="s">記録は、このブラウザの中にだけ保存されます。ブラウザのデータを消すと、記録も消えます。ときどき「書き出し」で保存しておくと安心です。</p><div class="two" style="margin-top:10px"><button id="ex">書き出し</button><button id="imb">読み込み</button></div><input type="file" id="im" accept=".json,application/json" hidden></div>`;
-function bf(){$("#ex").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:"application/json"}));a.download="deli-backup-"+key(new Date())+".json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
-$("#imb").onclick=()=>$("#im").click();
-$("#im").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||typeof o.days!="object"||!Array.isArray(o.exp))throw 0;if(confirm("今の記録を、読み込んだ内容で置き換えますか？")){S=o;save();go()}}catch(x){alert("読み込めませんでした。書き出したファイルを選んでください。")}};r.readAsText(f)}}
-const V={m:[vm,bm],e:[ve,be],c:[vc,bc],o:[vo,bo]};
-function go(){$("#v").innerHTML=V[tab][0]()+foot();const d=$("#dt");if(d)d.onchange=e=>{if(e.target.value){date=e.target.value;mon=date.slice(0,7);go()}};V[tab][1]();bf();$$("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t==tab))}
-$$("nav button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;go()});go();
-</script></body></html>
+:root{color-scheme:light dark;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:Canvas;color:CanvasText}
+main{box-sizing:border-box;width:min(92%,480px);padding:28px;border:1px solid #8886;border-radius:16px}
+h1{font-size:1.4rem;margin-top:0}p{line-height:1.8}
+a{display:inline-block;padding:13px 20px;background:#0868cf;color:#fff;border-radius:10px;text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+<main>
+<h1>配達収支の旧ページです</h1>
+<p>このページは更新を終了しました。安全にご利用いただくため、最新版を開いてください。</p>
+<p><a href="./">最新版の「配達収支」を開く</a></p>
+<p><small>この案内ページは保存データの読み込み・変更・削除を行いません。</small></p>
+</main>
+</body>
+</html>
