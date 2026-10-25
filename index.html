@@ -15,8 +15,19 @@ h1,h2,h3,p{overflow-wrap:anywhere}.hero h1,.page-title{font-size:22px;font-weigh
 .r{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:3px 0;min-width:0}.r>span{min-width:0;overflow-wrap:anywhere}.r>b{text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.s{color:var(--sb);font-size:13px;margin:0}.g{color:var(--positive-text);font-weight:600}.n{color:var(--rd);font-weight:600}
 .date-trigger{font-size:15px;font-weight:500;text-align:left;color:var(--sb);background:none;border:0;padding:6px 0;justify-self:start;min-height:32px}
 .metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric{display:grid;gap:6px}.metric small{font-size:15px;color:var(--sb)}.metric b{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-.goal-card{display:grid;gap:10px}.goal-card .r{padding:0;font-size:15px}.bar{height:6px;background:var(--ln);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--gn)}
-.section{display:grid;gap:10px;min-width:0}.service-list{padding-top:6px;padding-bottom:6px}.service-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;column-gap:10px;row-gap:8px;padding:11px 0;font-size:15px}.service-row+.service-row{border-top:1px solid var(--ln)}.service-row .company{font-weight:600;white-space:nowrap}.service-numbers{display:flex;align-items:center;gap:12px;font-variant-numeric:tabular-nums;margin-left:auto;white-space:nowrap}.service-numbers small{color:var(--sb);font-size:15px}.service-numbers b{font-weight:600}
+.profit-highlight{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:rgba(0,128,61,0.10);margin-top:6px}
+.profit-highlight.is-negative{background:rgba(199,31,41,0.10)}
+.profit-highlight .s{color:var(--sb);font-size:15px;margin:0}
+.profit-highlight b{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--positive-text)}
+.profit-highlight.is-negative b{color:var(--rd)}
+.goal-card{display:grid;gap:10px}.goal-card .r{padding:0;font-size:15px}.goal-pct{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}.bar{height:8px;background:var(--ln);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--gn)}
+.section{display:grid;gap:10px;min-width:0}.service-list{display:grid;gap:8px;padding:10px}
+.service-item{background:var(--input);border:1px solid var(--ln);border-radius:12px;padding:10px 12px;display:grid;gap:6px}
+.service-head{display:flex;align-items:center;justify-content:space-between;font-size:15px}
+.service-head .company{font-weight:600}
+.service-head b{font-weight:700;font-variant-numeric:tabular-nums}
+.service-sub{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--sb);font-variant-numeric:tabular-nums}
+.service-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;column-gap:10px;row-gap:8px;padding:11px 0;font-size:15px}.service-row+.service-row{border-top:1px solid var(--ln)}.service-row .company{font-weight:600;white-space:nowrap}.service-numbers{display:flex;align-items:center;gap:12px;font-variant-numeric:tabular-nums;margin-left:auto;white-space:nowrap}.service-numbers small{color:var(--sb);font-size:15px}.service-numbers b{font-weight:600}
 .company::before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:var(--sb);vertical-align:middle}.company[data-company="Uber Eats"]::before{background:var(--gn)}.company[data-company="出前館"]::before{background:var(--demae)}.company[data-company="Rocket Now"]::before{background:var(--ac)}
 .pri,.secondary-action{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:52px;padding:12px;border:0;border-radius:16px;font-size:17px;font-weight:600}.pri{background:var(--button);color:#fff}.secondary-action{background:var(--input);color:var(--ac);border:1px solid var(--ln)}.action-icon{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .entry-fields{display:grid;gap:16px}.field{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:15px;min-width:0}.field input{width:130px;text-align:right}.cr{display:grid;gap:14px}.cr>b{font-size:15px;font-weight:600}.cr .field input{width:130px}.entry-fields hr{width:100%;margin:0;border:0;border-top:1px solid var(--ln)}
@@ -407,8 +418,8 @@ function bindPageDialogs(){
  // Closing only hides the sheet; inputs remain in the DOM, including during a goal save.
  $$(".page-dialog [data-close-dialog]").forEach(button=>button.onclick=()=>button.closest('dialog').close());
 }
-function vm(){const o=D(date);return `<section class="hero">${dateButton()}<h1>${date===key(new Date())?'今日の売上':'選択日の売上'}</h1><div class="hero-amount" id="sales-total"></div></section>
-<div class="metrics"><div class="card metric"><small>1件単価</small><b id="sales-unit"></b></div><div class="card metric"><small>件数</small><b id="sales-count"></b></div></div>
+function vm(){const o=D(date);return `<section class="hero">${dateButton()}<h1>${date===key(new Date())?'今日の売上':'選択日の売上'}</h1><div class="hero-amount" id="sales-total"></div><div class="profit-highlight" id="sales-profit-card"><span class="s">収支（売上 − 経費）</span><b id="sales-profit"></b></div></section>
+<div class="metrics"><div class="card metric"><small>1件単価</small><b id="sales-unit"></b></div><div class="card metric"><small>配達件数</small><b id="sales-count"></b></div><div class="card metric"><small>稼働時間</small><b id="sales-hours"></b></div><div class="card metric"><small>経費合計</small><b id="sales-expense"></b></div></div>
 <div class="card goal-card" id="goal"></div><section class="section"><h2 class="section-title">サービス別</h2><div class="card service-list" id="service-summary"></div></section>
 <button class="pri" id="sales-open-entry" data-open-dialog="sales-entry">${plusIcon}売上を記録</button>
 ${dateDialogHTML('日付を選択')}
@@ -418,10 +429,21 @@ ${P.map((n,i)=>{const q=o.p[n]||{};return `<div class="card cr"><b class="compan
 ${Object.entries(o.p).filter(([name])=>!P.includes(name)).map(([name,q])=>`<div class="card">${row(companyNameHTML(name),yen(q.s)+' / '+q.c+'件（保存済み）')}</div>`).join('')}
 <div class="card" id="tot"></div><button class="pri" id="sv">この日を保存（上書き）</button></div></dialog>`}
 function renderSalesOverview(s,c,h,ex,g){
- $('#sales-total').textContent=yen(s);$('#sales-unit').textContent=yen(c?s/c:0);$('#sales-count').textContent=c+'件';
- const progress=g>0?Math.max(0,Math.min(100,s/g*100)):0;
- $('#goal').innerHTML=`<div class="r"><span class="s">${date===key(new Date())?'今日の目標':'目標金額'} ${yen(g)}</span><b>${Math.round(progress)}%</b></div><div class="bar" role="progressbar" aria-label="売上目標の達成率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(progress)}"><i style="width:${progress}%"></i></div><p class="s${g>0&&s>=g?' g':''}">${g<=0?'目標金額を設定してください':s>=g?'目標達成！':'目標まであと '+yen(g-s)}</p>`;
- $('#service-summary').innerHTML=P.map((name,i)=>{const fields=$$('.cr')[i].querySelectorAll('input'),count=+fields[0].value||0,sales=+fields[1].value||0;return `<div class="service-row">${companyNameHTML(name)}<div class="service-numbers"><small>${count}件</small><b>${yen(sales)}</b></div></div>`}).join('');
+ const pf=s-ex;
+ $('#sales-total').textContent=yen(s);
+ const pCard=$('#sales-profit-card'),pVal=$('#sales-profit');
+ if(pCard&&pVal){pVal.textContent=yen(pf);pCard.classList.toggle('is-negative',pf<0)}
+ $('#sales-unit').textContent=yen(c?s/c:0);
+ $('#sales-count').textContent=c+'件';
+ const elH=$('#sales-hours'),elEx=$('#sales-expense');
+ if(elH)elH.textContent=h>0?h.toFixed(1)+'時間':'0時間';
+ if(elEx)elEx.textContent=yen(ex);
+ const progress=g>0?Math.max(0,Math.min(100,s/g*100)):0,isAchieved=g>0&&s>=g;
+ $('#goal').innerHTML=`<div class="r"><span class="s">${date===key(new Date())?'今日の目標':'目標金額'} ${yen(g)}</span><b class="goal-pct">${Math.round(progress)}%</b></div><div class="bar" role="progressbar" aria-label="売上目標の達成率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(progress)}"><i style="width:${progress}%"></i></div><p class="s${isAchieved?' g':''}">${g<=0?'目標金額を設定してください':isAchieved?'🎉 目標達成！':'目標まであと '+yen(g-s)}</p>`;
+ $('#service-summary').innerHTML=P.map((name,i)=>{
+  const fields=$$('.cr')[i].querySelectorAll('input'),count=+fields[0].value||0,sales=+fields[1].value||0,avg=count>0?Math.round(sales/count):0;
+  return `<div class="service-item"><div class="service-head">${companyNameHTML(name)}<b>${yen(sales)}</b></div><div class="service-sub"><span>件数 ${count}件</span><span>平均単価 ${count>0?yen(avg):'—'}</span></div></div>`;
+ }).join('');
 }
 
 function calc(){let s=0,c=0;Object.entries(D(date).p).filter(([name])=>!P.includes(name)).forEach(([,q])=>{s+=q.s;c+=q.c});$$(".cr").forEach((r,i)=>{const[a,b]=r.querySelectorAll("input"),x=+a.value||0,y=+b.value||0;s+=y;c+=x;$("#u"+i).textContent=yen(x?y/x:0)});
@@ -485,9 +507,10 @@ async function deleteExpense(index){
 }
 
 function tot(u){const pre=u=="m"?date.slice(0,7):date.slice(0,4),t=Object.create(null);
-Object.keys(S.days).filter(k=>k.startsWith(pre)).forEach(k=>{const p=D(k).p;Object.keys(p).forEach(n=>{t[n]=t[n]||{s:0,c:0};t[n].s+=p[n].s;t[n].c+=p[n].c})});
+let totalCount=0;
+Object.keys(S.days).filter(k=>k.startsWith(pre)).forEach(k=>{const p=D(k).p;Object.keys(p).forEach(n=>{t[n]=t[n]||{s:0,c:0};t[n].s+=p[n].s;t[n].c+=p[n].c;totalCount+=p[n].c})});
 const ex=esum(pre),sl=sal(pre),pf=sl-ex,L=[...P.filter(n=>own(t,n)),...Object.keys(t).filter(n=>!P.includes(n))];
-return `<div class="card"><b>${u=="m"?+date.slice(5,7)+"月":date.slice(0,4)+"年"}の各社累計</b>${L.length?L.map(n=>`<div class="r">${companyNameHTML(n)}<b>${yen(t[n].s)}</b></div><p class="s">${t[n].c}件 / 単価 ${yen(t[n].c?t[n].s/t[n].c:0)}</p>`).join(""):'<p class="s">会社別の記録なし</p>'}${row("経費",yen(ex))}${row("収支（売上 − 経費）",`<span class="${pf<0?"n":"g"}">${yen(pf)}</span>`)}</div>`}
+return `<div class="card company-totals" data-company-period="${u}"><div class="r"><b>${u=="m"?+date.slice(5,7)+"月":date.slice(0,4)+"年"}の各社累計</b><span class="s">合計 ${totalCount}件</span></div>${L.length?`<div class="service-list" style="padding:4px 0">${L.map(n=>{const item=t[n],avg=item.c>0?Math.round(item.s/item.c):0;return `<div class="service-item"><div class="service-head">${companyNameHTML(n)}<b>${yen(item.s)}</b></div><div class="service-sub"><span>件数 ${item.c}件</span><span>平均単価 ${item.c>0?yen(avg):'—'}</span></div></div>`}).join("")}</div>`:'<p class="s">会社別の記録なし</p>'}<div class="expense-divider"></div>${row("経費合計",yen(ex))}<div class="profit-highlight${pf<0?' is-negative':''}" style="margin-top:6px"><span class="s">収支（売上 − 経費）</span><b style="color:${pf<0?'var(--rd)':'var(--positive-text)'}">${yen(pf)}</b></div></div>`}
 function ann(){const y=date.slice(0,4),d=Object.keys(S.days).filter(k=>k.startsWith(y)).map(dsum),s=d.reduce((a,x)=>a+x.s,0),c=d.reduce((a,x)=>a+x.c,0),h=d.reduce((a,x)=>a+x.h,0),n=d.filter(x=>x.s||x.c||x.h).length;
 return `<div class="card"><b>${y}年のまとめ</b>${row("年間売上",yen(s))}${row("年間配達件数",c+" 件")}${row("記録した日数",n+" 日")}${row("月平均売上",yen(s/12))}${row("年間稼働時間",h.toFixed(1)+" 時間")}${row("平均日給（記録日）",yen(n?s/n:0))}</div>`}
 function vc(){const[y,m]=mon.split("-").map(Number),n=new Date(y,m,0).getDate(),today=key(new Date());let g="";
@@ -495,22 +518,23 @@ function vc(){const[y,m]=mon.split("-").map(Number),n=new Date(y,m,0).getDate(),
 for(let i=0;i<new Date(y,m-1,1).getDay();i++)g+="<i></i>";
 for(let d=1;d<=n;d++){const k=mon+"-"+p2(d),t=new Date(y,m-1,d),s=dsum(k).s;
 g+=`<button class="dc${k==date?" sel":""}${t.getDay()==0||hol(t)?" rd":""}${k===today?" today":""}" data-k="${k}" aria-label="${y}年${m}月${d}日${s?"、売上"+yen(s):""}" aria-pressed="${k===date}"${k===today?' aria-current="date"':""}><span class="day-number">${d}</span><small>${s?s.toLocaleString("ja-JP"):""}</small></button>`}
-const o=D(date),sd=dsum(date),ex=S.exp.filter(e=>e.d==date);
-const periodCard=u=>tot(u).replace('<div class="card">',`<div class="card company-totals" data-company-period="${u}">`);
+const o=D(date),sd=dsum(date),ex=S.exp.filter(e=>e.d==date),pf=sd.s-esum(date);
 return `<section class="calendar-surface"><div class="mn"><span class="month-title">${y}年${m}月</span><div class="month-arrows"><button type="button" id="calendar-today" class="calendar-today">今日</button><button data-m="-1" aria-label="前の月"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><button data-m="1" aria-label="次の月"><svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button></div></div><div class="cal">${g}</div></section>
 <div class="periods" role="group" aria-label="集計期間">${[['d','日'],['m','月'],['y','年']].map(([value,label])=>`<button data-period="${value}" aria-pressed="${calendarPeriod===value}">${label}</button>`).join('')}</div>
-<section class="calendar-summary"><p class="s" id="calendar-summary-title"></p><div class="hero-amount" id="calendar-summary-sales"></div><div class="r"><span class="s">収支</span><b id="calendar-summary-profit"></b></div></section>
-${periodCard('m')}${periodCard('y')}
-<div class="card day-detail"><b>${dateText(true)}</b>${row('この日の売上',yen(sd.s))}${row('この日の収支',`<span class="${sd.s-esum(date)<0?'n':'g'}">${yen(sd.s-esum(date))}</span>`)}${sd.c||sd.h?row('件数',sd.c+' 件')+row('稼働時間',sd.h.toFixed(1)+' 時間'):'<p class="s">売上の記録なし</p>'}
-${Object.keys(o.p).map(n=>row(companyNameHTML(n),yen(o.p[n].s)+' / '+o.p[n].c+'件')).join('')}${ex.length?'<div class="expense-divider"></div>'+row('経費',`<span class="n">${yen(esum(date))}</span>`):''}${ex.map(e=>row(H(e.cat),yen(e.amt))).join('')}${sd.c||sd.h||Object.keys(o.p).length?'<button class="x n" id="dd">この日の売上の記録を削除</button>':''}</div><details class="extra-metrics"><summary>年間の詳しい集計</summary>${ann()}</details>`}
+<section class="calendar-summary"><p class="s" id="calendar-summary-title"></p><div class="hero-amount" id="calendar-summary-sales"></div><div class="profit-highlight" id="calendar-profit-card"><span class="s">収支（売上 − 経費）</span><b id="calendar-summary-profit"></b></div></section>
+${tot('m')}${tot('y')}
+<div class="card day-detail"><b>${dateText(true)}</b>${row('この日の売上',yen(sd.s))}<div class="profit-highlight${pf<0?' is-negative':''}" style="margin:4px 0 8px"><span class="s">収支</span><b style="color:${pf<0?'var(--rd)':'var(--positive-text)'}">${yen(pf)}</b></div>${sd.c||sd.h?row('件数',sd.c+' 件')+row('稼働時間',sd.h.toFixed(1)+' 時間')+row('1件単価',yen(sd.c?sd.s/sd.c:0)):''}${!sd.c&&!sd.h&&!Object.keys(o.p).length?'<p class="s">売上の記録なし</p>':''}${Object.keys(o.p).length?`<div class="service-list" style="padding:4px 0">${Object.keys(o.p).map(n=>{const q=o.p[n],avg=q.c>0?Math.round(q.s/q.c):0;return `<div class="service-item"><div class="service-head">${companyNameHTML(n)}<b>${yen(q.s)}</b></div><div class="service-sub"><span>件数 ${q.c}件</span><span>平均単価 ${q.c>0?yen(avg):'—'}</span></div></div>`}).join('')}</div>`:''}${ex.length?'<div class="expense-divider"></div>'+row('経費合計',`<span class="n">${yen(esum(date))}</span>`):''}${ex.map(e=>row(H(e.cat),yen(e.amt))).join('')}${sd.c||sd.h||Object.keys(o.p).length?'<button class="secondary-action" id="edit-sales-day">この日の売上を修正</button><button class="x n" id="dd" style="margin-top:4px">この日の売上の記録を削除</button>':''}</div><details class="extra-metrics"><summary>年間の詳しい集計</summary>${ann()}</details>`}
 function renderCalendarPeriod(){
- const prefix=calendarPeriod==='d'?date:date.slice(0,calendarPeriod==='m'?7:4),sales=sal(prefix),profit=sales-esum(prefix);
- $('#calendar-summary-title').textContent=calendarPeriod==='d'?'この日の売上':calendarPeriod==='m'?'この月の売上':'この年の売上';$('#calendar-summary-sales').textContent=yen(sales);$('#calendar-summary-profit').textContent=yen(profit);$('#calendar-summary-profit').className=profit<0?'n':'g';
+ const prefix=calendarPeriod==='d'?date:date.slice(0,calendarPeriod==='m'?7:4),sales=sal(prefix),expenses=esum(prefix),profit=sales-expenses;
+ $('#calendar-summary-title').textContent=calendarPeriod==='d'?'この日の売上':calendarPeriod==='m'?'この月の売上':'この年の売上';$('#calendar-summary-sales').textContent=yen(sales);
+ const pCard=$('#calendar-profit-card'),pVal=$('#calendar-summary-profit');
+ if(pCard&&pVal){pVal.textContent=yen(profit);pCard.classList.toggle('is-negative',profit<0)}
  $$('[data-period]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.period===calendarPeriod)));
  $$('[data-company-period]').forEach(card=>card.hidden=card.dataset.companyPeriod!==calendarPeriod);
 }
 function bc(){
   $$("[data-period]").forEach(button=>button.onclick=()=>{calendarPeriod=button.dataset.period;renderCalendarPeriod()});renderCalendarPeriod();
+  const edit=$("#edit-sales-day");if(edit)edit.onclick=()=>{if(navigate(()=>{tab="m"})){const dialog=$("#sales-entry");if(dialog&&!storageFault)dialog.showModal()}};
   const dd=$("#dd");if(dd)dd.onclick=deleteSalesDay;
   $$(".dc").forEach(b=>b.onclick=()=>navigate(()=>{date=b.dataset.k}));
   $("#calendar-today").onclick=()=>navigate(()=>{date=key(new Date());mon=date.slice(0,7)});
