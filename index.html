@@ -48,6 +48,16 @@ dialog{background:var(--cd);color:var(--tx);border:1px solid var(--ln);border-ra
 .sheet-content .notice,.sheet-content .warning{padding:10px;margin:0;width:100%}.day-detail .x{color:var(--rd)}
 .company-totals .company,.day-detail .company{font-size:17px;font-weight:600}
 @media(max-width:350px){.tools{padding-inline:16px}main{padding-inline:16px}.sheet-content{padding-inline:16px}.field{flex-wrap:wrap}.field input{margin-left:auto}.month-title{font-size:27px}}
+/* Mobile viewport: prevent horizontal document movement without changing stored data. */
+html{width:100%;max-width:100%;overflow-x:clip}
+body{width:100%;max-width:100%;overflow-x:clip}
+main,.tools,.storage-help,.warning,.notice{width:100%;max-width:560px;min-width:0}
+.tools>b,.data-tools{min-width:0}
+.data-tools{flex-shrink:0}
+.hero,.section,.metrics,.metric,.goal-card,.calendar-surface,.day-detail{min-width:0;max-width:100%}
+.hero-amount,.calendar-summary .hero-amount{max-width:100%;overflow-wrap:anywhere}
+@media(max-width:390px){.tools{padding-inline:12px}.tools>b{font-size:12px}.data-tools{gap:4px}#backup,#restore{padding-inline:7px;font-size:12px}main{padding-inline:14px}.service-numbers{gap:7px}.service-row{gap:6px}.service-row .company{white-space:normal}.month-title{font-size:clamp(21px,7vw,28px)}}
+
 </style></head><body>
 <header class="tools"><b>配達収支</b><div class="data-tools"><button id="backup" class="secondary">バックアップ</button><button id="restore" class="secondary">復元</button></div></header>
 <aside id="storage-warning" class="warning" role="alert" hidden></aside>
