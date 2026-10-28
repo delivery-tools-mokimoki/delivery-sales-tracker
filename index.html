@@ -511,7 +511,7 @@ function be(){
     }
   };
   $("#ad").onclick=async()=>{
-    let amount;try{amount=numberInput($("#am").value,"経費金額",true)}catch(e){notice(/[０-９]/.test($("#am").value)?"全角数字が入力されています。半角数字で入力してください（例：1000）。":e.message,true);return}
+    let amount;try{amount=numberInput($("#am").value,"経費金額",true)}catch(e){notice(/[０-９]/.test($("#am").value)?"全角数字が入力されています。半角数字で入力してください。":e.message,true);return}
     if(amount<=0){notice("経費金額は1円以上で入力してください。",true);return}
     const d=date,cat=$("#ct").value,categoryDraft=$("#nc").value;
     if(await saveChanges(next=>{let id=Date.now();while(next.exp.some(e=>String(e.id)===String(id)))id++;next.exp.push({id,d,cat,amt:amount})},"経費を保存しました")){
