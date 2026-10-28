@@ -393,7 +393,6 @@ function bindRestore(){
 }
 function navigate(change){
   if(busy||restoreState)return false;
-  if((draftDirty||goalDirty)&&!confirm("未保存の入力があります。保存せずに画面を切り替えますか？"))return false;
   draftDirty=false;goalDirty=false;change();notice("");go();return true;
 }
 function numberInput(value,label,integer=false){
