@@ -701,7 +701,7 @@ const names=["Uber Eats","出前館","Rocket Now","その他"];
 const colors=["#32d98c","#fa647c","#6c9dff","#c0b6dd"];
 const dlg=$("discord-dialog"),canvas=$("discord-preview"),ctx=canvas.getContext("2d");
 let totalSavedHours=0;
-const validCardDate=d=>/^\\d{4}-\\d{2}-\\d{2}$/.test(d);
+const validCardDate=d=>/^\d{4}-\d{2}-\d{2}$/.test(d);
 function loadSavedDay(){
   const selected=$("dc-date").value;
   const safe=typeof S!=="undefined"&&S&&typeof storageFault!=="undefined"&&!storageFault&&!busy&&!restoreState;
