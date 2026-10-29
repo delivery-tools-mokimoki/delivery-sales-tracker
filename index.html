@@ -694,7 +694,10 @@ line(y+77);
 });
 text("合計売上",50,903,30,"#b3c9ee");
 text(yen(data.sales),910,917,75,"#ffffff","700","right");
-c.fillStyle="#16499c";c.beginPath();c.roundRect(40,960,880,235,24);c.fill();
+c.fillStyle="#16499c";c.beginPath();
+if(typeof c.roundRect==="function"){c.roundRect(40,960,880,235,24)}
+else{const x=40,y=960,w=880,h=235,r=24;c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath()}
+c.fill();
 text("配達件数",80,1019,24,"#c1d9ff");
 text("稼働時間",520,1019,24,"#c1d9ff");
 text(data.count.toLocaleString("ja-JP")+" 件",80,1078,42,"#ffffff","700");
