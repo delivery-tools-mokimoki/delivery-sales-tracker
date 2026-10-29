@@ -474,8 +474,9 @@ function navigate(change){
   if(document.activeElement instanceof HTMLElement&&document.activeElement.matches("input,select,textarea"))document.activeElement.blur();
   draftDirty=false;goalDirty=false;change();notice("");go();return true;
 }
+function normalizeNumberText(value){return String(value??"").trim().replace(/[０-９．－＋，]/g,c=>({"．":".","－":"-","＋":"+","，":","}[c]||String.fromCharCode(c.charCodeAt(0)-65248))).replace(/,/g,"")}
 function numberInput(value,label,integer=false){
-  const n=value.trim()===""?0:Number(value);
+  const text=normalizeNumberText(value),n=text===""?0:Number(text);
   if(!Number.isFinite(n)||n<0||(integer&&!Number.isSafeInteger(n))||(!integer&&n>Number.MAX_SAFE_INTEGER))throw Error(label+"は0以上の"+(integer?"整数":"数値")+"を入力してください。");
   return n;
 }
@@ -546,8 +547,8 @@ function renderSalesOverview(s,c,h,ex,g){
  }).join('');
 }
 
-function calc(){let s=0,c=0;Object.entries(D(date).p).filter(([name])=>!P.includes(name)).forEach(([,q])=>{s+=q.s;c+=q.c});$$(".cr").forEach((r,i)=>{const[a,b]=r.querySelectorAll("input"),x=+a.value||0,y=+b.value||0;s+=y;c+=x;$("#u"+i).textContent=yen(x?y/x:0)});
-const h=+$("#hr").value||0,ex=esum(date),g=+$("#gl").value||0,pf=s-ex;
+function calc(){let s=0,c=0;Object.entries(D(date).p).filter(([name])=>!P.includes(name)).forEach(([,q])=>{s+=q.s;c+=q.c});$$(".cr").forEach((r,i)=>{const[a,b]=r.querySelectorAll("input"),x=Number(normalizeNumberText(a.value))||0,y=Number(normalizeNumberText(b.value))||0;s+=y;c+=x;$("#u"+i).textContent=yen(x?y/x:0)});
+const h=Number(normalizeNumberText($("#hr").value))||0,ex=esum(date),g=Number(normalizeNumberText($("#gl").value))||0,pf=s-ex;
 renderSalesOverview(s,c,h,ex,g);
 $("#tot").innerHTML=row("売上",yen(s))+row("経費",yen(ex))+row("収支",`<span class="${pf<0?"n":"g"}">${yen(pf)}</span>`)+row("件数",c+" 件")+row("稼働時間",h.toFixed(1)+" 時間")+`<details class="extra-metrics"><summary>詳細指標</summary>`+row("時給",yen(h?s/h:0))+row("1件あたりの単価",yen(c?s/c:0))+row("1時間あたりの件数",(h?c/h:0).toFixed(2)+" 件")+row("1件あたりの時間",(c?h*60/c:0).toFixed(1)+" 分")+"</details>"}
 function bm(){
@@ -590,7 +591,7 @@ function be(){
     }
   };
   $("#ad").onclick=async()=>{
-    let amount;try{amount=numberInput($("#am").value,"経費金額",true)}catch(e){notice(/[０-９]/.test($("#am").value)?"全角数字が入力されています。半角数字で入力してください。":e.message,true);return}
+    let amount;try{amount=numberInput($("#am").value,"経費金額",true)}catch(e){notice(e.message,true);return}
     if(amount<=0){notice("経費金額は1円以上で入力してください。",true);return}
     const d=date,cat=$("#ct").value,categoryDraft=$("#nc").value;
     if(await saveChanges(next=>{let id=Date.now();while(next.exp.some(e=>String(e.id)===String(id)))id++;next.exp.push({id,d,cat,amt:amount})},"経費を保存しました")){
@@ -663,7 +664,7 @@ function vo(){return `<div class="change-page"><h1 class="page-title">お釣り�
 <div class="card result-card" id="change-normal"><span class="result-label" id="change-label">お釣り</span><div class="big" id="change-value">0 円</div></div></div>`}
 function syncChangeDisplay(){const short=$('#cl').textContent==='不足';$('#change-label').textContent=$('#cl').textContent;$('#change-value').textContent=$('#cv').textContent;$$('.result-card').forEach(card=>card.classList.toggle('is-short',short))}
 
-function bo(){$("#cc").onclick=()=>{const b=+$("#bl").value,r=+$("#rc").value;if(!$("#bl").value||!$("#rc").value)return;const d=r-b;$("#cv").textContent=Math.abs(d).toLocaleString("ja-JP")+" 円";$("#cl").textContent=d>=0?"お釣り":"不足";syncChangeDisplay()};
+function bo(){$("#cc").onclick=()=>{const b=Number(normalizeNumberText($("#bl").value)),r=Number(normalizeNumberText($("#rc").value));if(!$("#bl").value||!$("#rc").value||!Number.isFinite(b)||!Number.isFinite(r)||b<0||r<0){notice("会計額と受取額は0以上の数字を入力してください。",true);return;}const d=r-b;$("#cv").textContent=Math.abs(d).toLocaleString("ja-JP")+" 円";$("#cl").textContent=d>=0?"お釣り":"不足";syncChangeDisplay()};
 $("#cr").onclick=()=>{$("#bl").value=$("#rc").value="";$("#cv").textContent="0 円";$("#cl").textContent="お釣り";syncChangeDisplay()}}
 
 const V={m:[vm,bm],e:[ve,be],c:[vc,bc],o:[vo,bo]};
