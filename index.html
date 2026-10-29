@@ -106,8 +106,12 @@ nav .tab-icon{flex-shrink:0}
 #discord-dialog .discord-wrap > label{display:grid;grid-template-columns:minmax(0,1fr);width:100%;max-width:100%;min-width:0;box-sizing:border-box}
 #discord-dialog #dc-date{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;overflow:hidden;-webkit-appearance:none;appearance:none}
 
+/* Backup confirmation reminder: separate metadata, no changes to saved sales. */
+.backup-reminder{max-width:560px;margin:8px auto;padding:12px 16px;border:1px solid var(--ln);border-radius:12px;background:var(--cd);font-size:14px}
+.backup-reminder p{margin:0 0 8px}.backup-reminder button{padding:8px 12px;min-height:44px;border-radius:9px;border:1px solid var(--ac);background:var(--cd);color:var(--ac)}
 </style></head><body>
 <header class="tools"><b>配達収支</b><div class="data-tools"><button id="backup" class="secondary">バックアップ</button><button id="restore" class="secondary">復元</button></div></header>
+<section id="backup-reminder" class="backup-reminder" role="status" aria-live="polite" hidden><p id="backup-reminder-text"></p><div id="backup-confirm-row" hidden><p>JSONファイルを「ファイル」アプリ等で確認してから押してください。</p><button id="backup-confirm" type="button">保存を確認しました</button></div></section>
 <aside id="storage-warning" class="warning" role="alert" hidden></aside>
 <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
 <main id="v"></main>
@@ -146,6 +150,26 @@ nav .tab-icon{flex-shrink:0}
 const P=["Uber Eats","出前館","Rocket Now","その他"],C=["ガソリン代","食費","駐輪代","その他"];
 // 保存キーと保存形式は従来のまま。読み込み失敗を初回起動として扱わない。
 const STORAGE_KEY="deli";
+const BACKUP_CONFIRMED_KEY="delivery-sales-tracker.backupConfirmed.v1";
+let backupAttemptedThisSession=false;
+function showBackupReminder(){
+  const box=document.getElementById("backup-reminder"),label=document.getElementById("backup-reminder-text"),confirmRow=document.getElementById("backup-confirm-row");
+  if(!box||!label||!confirmRow)return;
+  let hasSaved=false,last="";
+  try{hasSaved=localStorage.getItem(STORAGE_KEY)!==null;last=localStorage.getItem(BACKUP_CONFIRMED_KEY)||""}catch(e){box.hidden=true;return}
+  if(!hasSaved){box.hidden=true;return}
+  const now=new Date(),todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+  const prior=last?new Date(last):null;
+  const recent=prior&&!Number.isNaN(prior.getTime())&&prior.getTime()>=todayStart&&prior.getTime()<=now.getTime();
+  box.hidden=!!recent&&!backupAttemptedThisSession;
+  if(!box.hidden){label.textContent=backupAttemptedThisSession?"バックアップのダウンロード後、ファイルが保存されたことを確認してください。":last?"今日のJSONバックアップがまだ確認されていません。大切な記録を守るためバックアップしてください。":"バックアップの保存確認がまだありません。最初のJSONバックアップを取ってください。"}
+  confirmRow.hidden=!backupAttemptedThisSession;
+}
+function markBackupConfirmed(){
+  if(!backupAttemptedThisSession)return;
+  try{localStorage.setItem(BACKUP_CONFIRMED_KEY,new Date().toISOString());backupAttemptedThisSession=false;showBackupReminder()}
+  catch(e){document.getElementById("backup-reminder-text").textContent="確認日時を保存できませんでした。JSONファイル自体は手元で保管してください。"}
+}
 const RESTORE_GUARD_KEY="deli.restorePending.v1",RESTORE_DB="delivery-sales-tracker-restore-safety",RESTORE_STORE="snapshots";
 let restoreState=null,restoreSequence=0;
 let S=null,lastRaw,storageFault="",busy=false,draftDirty=false,goalDirty=false;
@@ -211,6 +235,7 @@ function exportBackup(){
   try{
     url=URL.createObjectURL(new Blob([JSON.stringify(backup,null,2)],{type:"application/json;charset=utf-8"}));
     a=document.createElement("a");a.href=url;a.download="delivery-sales-backup-"+new Date().toISOString().replace(/[:.]/g,"-")+".json";document.body.appendChild(a);a.click();
+    backupAttemptedThisSession=true;showBackupReminder();
     notice(valid?"バックアップファイルを作成しました。「ダウンロード」または「ファイル」で保存完了を確認してください。入力途中でまだ保存していない内容は含まれません。":"読み取りに問題がある元データを含むJSONを作成しました。ファイルの保存完了を確認してください。未保存の入力は含まれません。");
   }catch(e){notice("JSONファイルの作成に失敗しました。保存データは変更していません。",true)}
   finally{if(a)a.remove();if(url)setTimeout(()=>URL.revokeObjectURL(url),60000)}
@@ -651,9 +676,10 @@ function go(){
 }
 function startApp(){
  window.addEventListener('resize',()=>requestAnimationFrame(keepDialogInputVisible));if(window.visualViewport)window.visualViewport.addEventListener('resize',()=>requestAnimationFrame(keepDialogInputVisible));
-  loadSavedData();$("#backup").onclick=exportBackup;bindRestore();
+  loadSavedData();$("#backup").onclick=exportBackup;document.getElementById("backup-confirm").onclick=markBackupConfirmed;showBackupReminder();bindRestore();
   setInterval(refreshCalendarToday,60000);
-  window.addEventListener("focus",refreshCalendarToday);
+  setInterval(showBackupReminder,60000);
+  window.addEventListener("focus",()=>{refreshCalendarToday();showBackupReminder()});
   window.addEventListener("pageshow",refreshCalendarToday);
   document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshCalendarToday()});
   $$("nav button").forEach(b=>b.onclick=()=>{if(tab!==b.dataset.t&&navigate(()=>{tab=b.dataset.t}))window.scrollTo(0,0)});
