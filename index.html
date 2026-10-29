@@ -119,10 +119,10 @@ nav .tab-icon{flex-shrink:0}
 <dialog id="discord-dialog" aria-label="Discord稼働報告カード">
 <div class="discord-wrap">
 <h2>Discord 稼働報告カード</h2>
-<p style="font-size:13px;margin:0">カード専用の手入力です。保存済みの売上データは読み書きしません。</p>
+<p style="font-size:13px;margin:0">選択日の保存済み売上・件数・合計稼働時間を自動反映します。地域・メモは手入力です。カードから記録は変更されません。</p>
 <label>日付 <input id="dc-date" type="date"></label>
 <label>稼働地域（全社共通）<input id="dc-area" placeholder="例：船橋・津田沼" maxlength="60"></label>
-<div id="dc-companies"></div>
+<p id="dc-source-status" class="s" role="status"></p><div id="dc-companies"></div>
 <label>メモ（任意）<input id="dc-memo" maxlength="90" placeholder="例：夜ピーク稼働"></label>
 <p id="discord-message" role="status" aria-live="polite"></p>
 <div class="discord-controls"><button type="button" id="dc-update">プレビュー更新</button><button type="button" id="dc-download">PNG保存</button><button type="button" data-close>閉じる</button></div>
@@ -699,10 +699,29 @@ const $=id=>document.getElementById(id);
 const names=["Uber Eats","出前館","Rocket Now","その他"];
 const colors=["#32d98c","#fa647c","#6c9dff","#c0b6dd"];
 const dlg=$("discord-dialog"),canvas=$("discord-preview"),ctx=canvas.getContext("2d");
+let totalSavedHours=0;
+const validCardDate=d=>/^\\d{4}-\\d{2}-\\d{2}$/.test(d);
+function loadSavedDay(){
+  const selected=$("dc-date").value;
+  const safe=typeof S!=="undefined"&&S&&typeof storageFault!=="undefined"&&!storageFault&&!busy&&!restoreState;
+  const saved=safe&&validCardDate(selected)?S.days[selected]:null;
+  const p=saved&&saved.p&&typeof saved.p==="object"?saved.p:{};
+  totalSavedHours=saved&&Number.isFinite(saved.h)?saved.h:0;
+  names.forEach((name,i)=>{
+    const record=p[name]||{};
+    for(const kind of ["sales","count"]){
+      const el=dlg.querySelector('[data-co="'+i+'"][data-kind="'+kind+'"]');
+      el.value=kind==="sales"?(record.s??0):(record.c??0);
+    }
+    dlg.querySelector('[data-co="'+i+'"][data-kind="hours"]').value="";
+  });
+  $("dc-source-status").textContent=!safe?"保存データを安全に確認できないため、自動反映を停止しました。":saved?"保存済みの "+selected+" を反映しました。合計稼働時間 "+totalSavedHours+" 時間。会社別の稼働時間は未保存のため任意入力です。":"この日には保存済みの売上がありません。売上画面で記録を保存すると反映されます。";
+  update();
+}
 const numberText=v=>String(v||"").trim().replace(/[０-９．－，＋]/g,c=>({"．":".","－":"-","，":",","＋":"+"}[c]||String.fromCharCode(c.charCodeAt(0)-65248))).replace(/,/g,"");
 const yen=n=>"¥"+Math.round(n).toLocaleString("ja-JP");
 const fmtHours=h=>Number.isInteger(h)?String(h):h.toFixed(2).replace(/0+$/,"").replace(/\.$/,"");
-const input=(label,i,kind,placeholder)=>'<label>'+label+'<input inputmode="decimal" data-co="'+i+'" data-kind="'+kind+'" placeholder="'+placeholder+'" aria-label="'+names[i]+' '+label+'"></label>';
+const input=(label,i,kind,placeholder)=>'<label>'+label+'<input inputmode="decimal" data-co="'+i+'" data-kind="'+kind+'" placeholder="'+placeholder+'" aria-label="'+names[i]+' '+label+'"'+(kind==="hours"?'':' readonly aria-readonly="true"')+'></label>';
 $("dc-companies").innerHTML=names.map((name,i)=>'<h3>'+name+'</h3><div class="discord-grid">'+input("売上（円）",i,"sales","0")+input("配達件数",i,"count","0")+input("稼働時間（h）",i,"hours","0")+'</div>').join("");
 $("dc-date").value=new Date().toLocaleDateString("sv-SE");
 function getData(){
@@ -717,7 +736,7 @@ out[k]=v;
 }return out;
 });
 return {date:$("dc-date").value,area:$("dc-area").value.trim(),memo:$("dc-memo").value.trim(),companies,
-sales:companies.reduce((n,v)=>n+v.sales,0),count:companies.reduce((n,v)=>n+v.count,0),hours:companies.reduce((n,v)=>n+v.hours,0)};
+sales:companies.reduce((n,v)=>n+v.sales,0),count:companies.reduce((n,v)=>n+v.count,0),hours:totalSavedHours};
 }
 function draw(data){
 const c=ctx;c.fillStyle="#0b1630";c.fillRect(0,0,960,1340);
@@ -737,7 +756,7 @@ c.fillStyle=colors[i];c.fillRect(50,y-29,9,36);
 text(v.name,73,y,31,"#f4f7ff","700");
 c.font="700 38px -apple-system,'Hiragino Sans',sans-serif";text(fit(yen(v.sales),520),908,y,38,"#ffffff","700","right");
 text("配達 "+v.count.toLocaleString("ja-JP")+" 件",73,y+52,25,"#b9d0f1");
-text("稼働 "+fmtHours(v.hours)+" 時間",908,y+52,25,"#b9d0f1","500","right");
+text("稼働 "+(v.hours?fmtHours(v.hours)+" 時間":"内訳未登録"),908,y+52,25,"#b9d0f1","500","right");
 line(y+77);
 });
 text("合計売上",50,903,30,"#b3c9ee");
@@ -762,7 +781,8 @@ function update(){
 try{draw(getData());$("discord-message").textContent="合計・PNGプレビュー更新済み";return true}
 catch(e){$("discord-message").textContent=e.message;return false}
 }
-$("discord-card-open").addEventListener("click",()=>{update();dlg.showModal()});
+$("discord-card-open").addEventListener("click",()=>{$("dc-date").value=typeof date!=="undefined"?date:new Date().toLocaleDateString("sv-SE");loadSavedDay();dlg.showModal()});
+$("dc-date").addEventListener("change",loadSavedDay);
 $("dc-update").addEventListener("click",update);
 $("dc-download").addEventListener("click",()=>{if(!update())return;canvas.toBlob(blob=>{if(!blob){$("discord-message").textContent="PNGの生成に失敗しました";return}const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="配達収支_Discord稼働報告_"+($("dc-date").value||"日付未入力")+".png";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)},"image/png")});
 dlg.querySelector("[data-close]").addEventListener("click",()=>dlg.close());
