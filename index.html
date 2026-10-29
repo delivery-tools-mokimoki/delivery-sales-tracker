@@ -88,6 +88,20 @@ nav .tab-icon{flex-shrink:0}
 #discord-preview{width:100%;max-width:450px;display:block;margin:12px auto;border-radius:12px}
 #discord-message{font-size:14px;white-space:pre-wrap}
 @media(max-width:360px){.discord-grid{grid-template-columns:1fr 1fr}.discord-grid label:first-child{grid-column:span 2}}
+/* iPhone Safari: prevent horizontal dialog panning and clipped form controls. */
+#discord-dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;max-width:calc(100vw - 24px);width:calc(100vw - 24px);max-height:calc(100dvh - 32px);overflow:hidden;overscroll-behavior:contain}
+#discord-dialog .discord-wrap{box-sizing:border-box;width:100%;max-width:100%;max-height:calc(100dvh - 32px);overflow-x:hidden;overflow-y:auto;overscroll-behavior-x:none}
+#discord-dialog .discord-grid,#discord-dialog #dc-companies{min-width:0;max-width:100%}
+#discord-dialog .discord-grid>label{min-width:0;max-width:100%;overflow-wrap:anywhere}
+#discord-dialog input,#discord-dialog canvas{box-sizing:border-box;min-width:0;max-width:100%;width:100%}
+@media(max-width:600px){
+  #discord-dialog{inset:0;margin:auto;width:calc(100vw - 16px);max-width:calc(100vw - 16px);max-height:calc(100dvh - 20px);border-radius:16px}
+  #discord-dialog .discord-wrap{padding:14px;max-height:calc(100dvh - 20px)}
+  #discord-dialog .discord-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+  #discord-dialog .discord-grid label:first-child{grid-column:span 2}
+  #discord-dialog .discord-controls button{flex:1 1 auto;min-height:44px}
+}
+@supports not (height:100dvh){#discord-dialog{max-height:calc(100vh - 20px)}#discord-dialog .discord-wrap{max-height:calc(100vh - 20px)}}
 </style></head><body>
 <header class="tools"><b>配達収支</b><div class="data-tools"><button id="backup" class="secondary">バックアップ</button><button id="restore" class="secondary">復元</button></div></header>
 <aside id="storage-warning" class="warning" role="alert" hidden></aside>
