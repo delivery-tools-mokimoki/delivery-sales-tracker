@@ -676,24 +676,25 @@ function draw(data){
 const c=ctx;c.fillStyle="#0b1630";c.fillRect(0,0,960,1340);
 const text=(str,x,y,size=30,color="#edf5ff",weight="500",align="left")=>{c.fillStyle=color;c.font=weight+" "+size+"px -apple-system,'Hiragino Sans',sans-serif";c.textAlign=align;c.fillText(String(str),x,y)};
 const line=(y)=>{c.fillStyle="#293d63";c.fillRect(50,y,860,2)};
+const fit=(str,maxWidth)=>{let t=String(str);if(c.measureText(t).width<=maxWidth)return t;while(t.length>1&&c.measureText(t+"…").width>maxWidth)t=t.slice(0,-1);return t+"…"};
 text("DELIVERY REPORT",50,85,23,"#88abea","700");
 text("稼働報告",50,146,55,"#ffffff","700");
 text(data.date||"日付未入力",910,139,24,"#b9cbeb","500","right");
 text("稼働地域",50,208,24,"#9db5d9");
-text((data.area||"未入力").slice(0,26),190,208,25,"#e8f3ff","600");
+c.font="600 25px -apple-system,'Hiragino Sans',sans-serif";text(fit(data.area||"未入力",710),190,208,25,"#e8f3ff","600");
 line(237);
 const sy=[300,444,588,732];
 data.companies.forEach((v,i)=>{
 const y=sy[i];
 c.fillStyle=colors[i];c.fillRect(50,y-29,9,36);
 text(v.name,73,y,31,"#f4f7ff","700");
-text(yen(v.sales),908,y,38,"#ffffff","700","right");
+c.font="700 38px -apple-system,'Hiragino Sans',sans-serif";text(fit(yen(v.sales),520),908,y,38,"#ffffff","700","right");
 text("配達 "+v.count.toLocaleString("ja-JP")+" 件",73,y+52,25,"#b9d0f1");
 text("稼働 "+fmtHours(v.hours)+" 時間",908,y+52,25,"#b9d0f1","500","right");
 line(y+77);
 });
 text("合計売上",50,903,30,"#b3c9ee");
-text(yen(data.sales),910,917,75,"#ffffff","700","right");
+c.font="700 75px -apple-system,'Hiragino Sans',sans-serif";text(fit(yen(data.sales),650),910,917,75,"#ffffff","700","right");
 c.fillStyle="#16499c";c.beginPath();
 if(typeof c.roundRect==="function"){c.roundRect(40,960,880,235,24)}
 else{const x=40,y=960,w=880,h=235,r=24;c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath()}
@@ -707,7 +708,7 @@ text("時給",520,1126,24,"#c1d9ff");
 text(data.count?yen(data.sales/data.count):"—",80,1173,38,"#ffffff","700");
 text(data.hours?yen(data.sales/data.hours):"—",520,1173,38,"#ffffff","700");
 text("MEMO",50,1258,20,"#8faddb","700");
-text((data.memo||"—").slice(0,42),150,1258,22,"#c8daf6");
+c.font="500 22px -apple-system,'Hiragino Sans',sans-serif";text(fit(data.memo||"—",750),150,1258,22,"#c8daf6");
 text("配達収支  /  Discord用カード",50,1311,19,"#7894bf");
 }
 function update(){
