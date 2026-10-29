@@ -102,6 +102,10 @@ nav .tab-icon{flex-shrink:0}
   #discord-dialog .discord-controls button{flex:1 1 auto;min-height:44px}
 }
 @supports not (height:100dvh){#discord-dialog{max-height:calc(100vh - 20px)}#discord-dialog .discord-wrap{max-height:calc(100vh - 20px)}}
+/* iOS Safari date picker: keep intrinsic date-control width inside the dialog. */
+#discord-dialog .discord-wrap > label{display:grid;grid-template-columns:minmax(0,1fr);width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+#discord-dialog #dc-date{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;overflow:hidden;-webkit-appearance:none;appearance:none}
+
 </style></head><body>
 <header class="tools"><b>配達収支</b><div class="data-tools"><button id="backup" class="secondary">バックアップ</button><button id="restore" class="secondary">復元</button></div></header>
 <aside id="storage-warning" class="warning" role="alert" hidden></aside>
