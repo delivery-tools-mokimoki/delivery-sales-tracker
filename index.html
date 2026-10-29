@@ -233,7 +233,9 @@ function exportBackup(){
   const backup={format:"delivery-sales-tracker-backup",version:1,exportedAt:new Date().toISOString(),storageKey:STORAGE_KEY,valid,data,raw};
   let url,a;
   try{
-    url=URL.createObjectURL(new Blob([JSON.stringify(backup,null,2)],{type:"application/json;charset=utf-8"}));
+    const payload=new Blob([JSON.stringify(backup,null,2)],{type:"application/json;charset=utf-8"});
+    if(payload.size>RESTORE_MAX_BYTES&&!confirm("バックアップJSONが20MiBを超えています。このファイルは現在の復元上限では読み込めません。書き出しを続けますか？"))return;
+    url=URL.createObjectURL(payload);
     a=document.createElement("a");a.href=url;a.download="delivery-sales-backup-"+new Date().toISOString().replace(/[:.]/g,"-")+".json";document.body.appendChild(a);a.click();
     backupAttemptedThisSession=true;showBackupReminder();
     notice(valid?"バックアップファイルを作成しました。「ダウンロード」または「ファイル」で保存完了を確認してください。入力途中でまだ保存していない内容は含まれません。":"読み取りに問題がある元データを含むJSONを作成しました。ファイルの保存完了を確認してください。未保存の入力は含まれません。");
@@ -241,7 +243,7 @@ function exportBackup(){
   finally{if(a)a.remove();if(url)setTimeout(()=>URL.revokeObjectURL(url),60000)}
 }
 // 復元用の保護コピーはIndexedDBに保存する。通常の記録は従来どおりdeliのまま。
-const RESTORE_MAX_BYTES=5*1024*1024;
+const RESTORE_MAX_BYTES=20*1024*1024;
 function checkRestoreJSON(value){
   const stack=[[value,0]];let nodes=0;
   while(stack.length){
@@ -365,11 +367,11 @@ async function loadRestoreFile(file){
   const state=restoreState;if(!state||state.working||!file)return;
   state.candidate=null;state.phase="select";state.backupId=null;$("#restore-preview").hidden=$("#restore-final").hidden=true;$("#restore-agree").checked=false;
   $("#restore-prepare").hidden=false;
-  if(file.size>RESTORE_MAX_BYTES){restoreMessage("5MB以下のJSONバックアップを選んでください。現在の記録は変更していません。",true);return}
+  if(file.size>RESTORE_MAX_BYTES){restoreMessage("20MiB以下のJSONバックアップを選んでください。現在の記録は変更していません。",true);return}
   restoreWorking(state,true);restoreMessage("ファイルを読み込み、内容を確認しています。");
   try{
     let text,timer;try{text=await Promise.race([file.text(),new Promise((resolve,reject)=>{timer=setTimeout(()=>reject(Error("timeout")),15000)})])}catch(e){throw Error("ファイルを読み込めませんでした。別のファイルを選び直してください。");}finally{clearTimeout(timer)}
-    if(text.length>RESTORE_MAX_BYTES)throw Error("ファイルが大きすぎます。");
+    if(new Blob([text]).size>RESTORE_MAX_BYTES)throw Error("ファイルが大きすぎます。");
     const candidate=parseRestoreBackup(text);
     let current;try{current=localStorage.getItem(STORAGE_KEY)}catch(e){throw Error("現在の保存データを読み取れないため、復元を進められません。");}
     if(restoreState!==state)return;
@@ -402,7 +404,8 @@ async function downloadRestoreSafety(){
     const record=state.recoveryRecord||await readRestoreSnapshot(state.recoveryId);if(!record)throw Error("missing");
     let data=null,valid=false;try{data=JSON.parse(record.raw);if(record.raw!==null){validateData(data);valid=true}}catch(e){}
     const backup={format:"delivery-sales-tracker-backup",version:1,exportedAt:record.createdAt,storageKey:STORAGE_KEY,valid,data,raw:record.raw};
-    url=URL.createObjectURL(new Blob([JSON.stringify(backup,null,2)],{type:"application/json;charset=utf-8"}));a=document.createElement("a");a.href=url;a.download="delivery-sales-before-restore-"+record.createdAt.replace(/[:.]/g,"-")+".json";document.body.appendChild(a);a.click();
+    const payload=new Blob([JSON.stringify(backup,null,2)],{type:"application/json;charset=utf-8"});if(payload.size>RESTORE_MAX_BYTES&&!confirm("復元前の保護用コピーが20MiBを超えています。このファイルは現在の復元上限では読み込めません。書き出しを続けますか？"))return;
+    url=URL.createObjectURL(payload);a=document.createElement("a");a.href=url;a.download="delivery-sales-before-restore-"+record.createdAt.replace(/[:.]/g,"-")+".json";document.body.appendChild(a);a.click();
     restoreMessage("復元前の原文を含むJSONを作成しました。Safariのダウンロードと「ファイル」で保存完了を確認してください。"+(record.raw===null?"復元前は保存データが存在しない状態でした。":""));
   }catch(e){restoreMessage("保護用コピーをJSONに書き出せませんでした。コピーや現在の記録は削除していません。",true)}
   finally{if(a)a.remove();if(url)setTimeout(()=>URL.revokeObjectURL(url),60000);restoreWorking(state,false)}
