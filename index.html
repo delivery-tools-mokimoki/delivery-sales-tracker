@@ -70,11 +70,43 @@ nav .tab-icon{flex-shrink:0}
 @media(max-width:390px){nav button{font-size:12px}.tools{gap:4px}.tools>b{font-size:11px}#backup,#restore{padding-inline:5px;font-size:12px}}
 
 
+
+/* Discord integrated card */
+#discord-card-open{margin:12px auto 0;display:block;max-width:520px;width:calc(100% - 40px);padding:13px;border:1px solid #2170d7;border-radius:12px;color:#2170d7;background:transparent;font-weight:700;font-size:16px}
+#discord-dialog{border:0;border-radius:18px;padding:0;max-width:min(520px,96vw);width:100%;max-height:90dvh;color:var(--tx);background:var(--cd)}
+#discord-dialog::backdrop{background:#0009}
+#discord-dialog .discord-wrap{padding:20px;max-height:90dvh;overflow:auto}
+#discord-dialog h2{font-size:20px;margin:0 0 8px}
+#discord-dialog h3{font-size:16px;margin:16px 0 7px}
+#discord-dialog label{display:grid;gap:3px;min-width:0;font-size:14px}
+#discord-dialog input{width:100%;font-size:16px;min-width:0}
+.discord-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.discord-grid label{font-size:12px}
+.discord-controls{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.discord-controls button{border:1px solid #2370ce;border-radius:10px;background:#176de1;color:white;font-size:15px;padding:11px 14px}
+.discord-controls button[data-close]{background:transparent;color:var(--tx);border-color:var(--ln)}
+#discord-preview{width:100%;max-width:450px;display:block;margin:12px auto;border-radius:12px}
+#discord-message{font-size:14px;white-space:pre-wrap}
+@media(max-width:360px){.discord-grid{grid-template-columns:1fr 1fr}.discord-grid label:first-child{grid-column:span 2}}
 </style></head><body>
 <header class="tools"><b>配達収支</b><div class="data-tools"><button id="backup" class="secondary">バックアップ</button><button id="restore" class="secondary">復元</button></div></header>
 <aside id="storage-warning" class="warning" role="alert" hidden></aside>
 <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
 <main id="v"></main>
+<button type="button" id="discord-card-open">Discord 稼働報告カードを作成</button>
+<dialog id="discord-dialog" aria-label="Discord稼働報告カード">
+<div class="discord-wrap">
+<h2>Discord 稼働報告カード</h2>
+<p style="font-size:13px;margin:0">カード専用の手入力です。保存済みの売上データは読み書きしません。</p>
+<label>日付 <input id="dc-date" type="date"></label>
+<label>稼働地域（全社共通）<input id="dc-area" placeholder="例：船橋・津田沼" maxlength="60"></label>
+<div id="dc-companies"></div>
+<label>メモ（任意）<input id="dc-memo" maxlength="90" placeholder="例：夜ピーク稼働"></label>
+<p id="discord-message" role="status" aria-live="polite"></p>
+<div class="discord-controls"><button type="button" id="dc-update">プレビュー更新</button><button type="button" id="dc-download">PNG保存</button><button type="button" data-close>閉じる</button></div>
+<canvas id="discord-preview" width="960" height="1340" aria-label="稼働報告カードのプレビュー"></canvas>
+</div>
+</dialog>
 <details id="storage-help" class="storage-help"><summary>記録の保存について</summary><p class="s">売上や経費の記録は、このブラウザに保存されます。</p>
 <p class="s">記録が消えてしまったときに備えて、定期的に<span style="white-space:nowrap">「バックアップ」ボタン</span>を押して、データを保存してください。</p></details>
 <nav id="t" aria-label="メインメニュー"><button data-t="m"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 21h18"/><rect x="5" y="12" width="3" height="6" rx=".5"/><rect x="11" y="5" width="3" height="13" rx=".5"/><rect x="17" y="9" width="3" height="9" rx=".5"/></svg><span>売上</span></button><button data-t="e"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 7V5a2 2 0 0 0-2-2H5a3 3 0 0 0 0 6h15v11H5a3 3 0 0 1-3-3V6"/><path d="M20 12h-5a2 2 0 0 0 0 4h5"/><path d="M16 14h.01"/></svg><span>経費</span></button><button data-t="c"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18M7 14h.01M12 14h.01M17 14h.01M7 18h.01M12 18h.01"/></svg><span>カレンダー</span></button><button data-t="o"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="1.5" width="16" height="21" rx="2.5"/><rect x="7" y="5" width="10" height="3.5" rx=".5"/><path d="M7.5 12h.01M12 12h.01M16.5 12h.01M7.5 16h.01M12 16h.01M16.5 16h.01M7.5 20h.01M12 20h.01M16.5 20h.01"/></svg><span>お釣り</span></button></nav>
@@ -612,4 +644,82 @@ function startApp(){
   go();refreshCalendarToday();
 }
 startApp();
+</script>
+<script id="discord-integration-script">
+(()=>{
+"use strict";
+const $=id=>document.getElementById(id);
+const names=["Uber Eats","出前館","Rocket Now","その他"];
+const colors=["#32d98c","#fa647c","#6c9dff","#c0b6dd"];
+const dlg=$("discord-dialog"),canvas=$("discord-preview"),ctx=canvas.getContext("2d");
+const numberText=v=>String(v||"").trim().replace(/[０-９．－，＋]/g,c=>({"．":".","－":"-","，":",","＋":"+"}[c]||String.fromCharCode(c.charCodeAt(0)-65248))).replace(/,/g,"");
+const yen=n=>"¥"+Math.round(n).toLocaleString("ja-JP");
+const fmtHours=h=>Number.isInteger(h)?String(h):h.toFixed(2).replace(/0+$/,"").replace(/\.$/,"");
+const input=(label,i,kind,placeholder)=>'<label>'+label+'<input inputmode="decimal" data-co="'+i+'" data-kind="'+kind+'" placeholder="'+placeholder+'" aria-label="'+names[i]+' '+label+'"></label>';
+$("dc-companies").innerHTML=names.map((name,i)=>'<h3>'+name+'</h3><div class="discord-grid">'+input("売上（円）",i,"sales","0")+input("配達件数",i,"count","0")+input("稼働時間（h）",i,"hours","0")+'</div>').join("");
+$("dc-date").value=new Date().toLocaleDateString("sv-SE");
+function getData(){
+const companies=names.map((name,i)=>{
+let out={name,color:colors[i]};
+for(const k of ["sales","count","hours"]){
+const el=dlg.querySelector('[data-co="'+i+'"][data-kind="'+k+'"]');
+const raw=numberText(el.value);
+const v=raw===""?0:Number(raw);
+if(!Number.isFinite(v)||v<0||v>1e10||(k==="count"&&!Number.isSafeInteger(v))||(k==="hours"&&v>24))throw Error(name+" の "+({sales:"売上",count:"件数",hours:"稼働時間"}[k])+" を確認してください。");
+out[k]=v;
+}return out;
+});
+return {date:$("dc-date").value,area:$("dc-area").value.trim(),memo:$("dc-memo").value.trim(),companies,
+sales:companies.reduce((n,v)=>n+v.sales,0),count:companies.reduce((n,v)=>n+v.count,0),hours:companies.reduce((n,v)=>n+v.hours,0)};
+}
+function draw(data){
+const c=ctx;c.fillStyle="#0b1630";c.fillRect(0,0,960,1340);
+const text=(str,x,y,size=30,color="#edf5ff",weight="500",align="left")=>{c.fillStyle=color;c.font=weight+" "+size+"px -apple-system,'Hiragino Sans',sans-serif";c.textAlign=align;c.fillText(String(str),x,y)};
+const line=(y)=>{c.fillStyle="#293d63";c.fillRect(50,y,860,2)};
+const fit=(str,maxWidth)=>{let t=String(str);if(c.measureText(t).width<=maxWidth)return t;while(t.length>1&&c.measureText(t+"…").width>maxWidth)t=t.slice(0,-1);return t+"…"};
+text("DELIVERY REPORT",50,85,23,"#88abea","700");
+text("稼働報告",50,146,55,"#ffffff","700");
+text(data.date||"日付未入力",910,139,24,"#b9cbeb","500","right");
+text("稼働地域",50,208,24,"#9db5d9");
+c.font="600 25px -apple-system,'Hiragino Sans',sans-serif";text(fit(data.area||"未入力",710),190,208,25,"#e8f3ff","600");
+line(237);
+const sy=[300,444,588,732];
+data.companies.forEach((v,i)=>{
+const y=sy[i];
+c.fillStyle=colors[i];c.fillRect(50,y-29,9,36);
+text(v.name,73,y,31,"#f4f7ff","700");
+c.font="700 38px -apple-system,'Hiragino Sans',sans-serif";text(fit(yen(v.sales),520),908,y,38,"#ffffff","700","right");
+text("配達 "+v.count.toLocaleString("ja-JP")+" 件",73,y+52,25,"#b9d0f1");
+text("稼働 "+fmtHours(v.hours)+" 時間",908,y+52,25,"#b9d0f1","500","right");
+line(y+77);
+});
+text("合計売上",50,903,30,"#b3c9ee");
+c.font="700 75px -apple-system,'Hiragino Sans',sans-serif";text(fit(yen(data.sales),650),910,917,75,"#ffffff","700","right");
+c.fillStyle="#16499c";c.beginPath();
+if(typeof c.roundRect==="function"){c.roundRect(40,960,880,235,24)}
+else{const x=40,y=960,w=880,h=235,r=24;c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath()}
+c.fill();
+text("配達件数",80,1019,24,"#c1d9ff");
+text("稼働時間",520,1019,24,"#c1d9ff");
+text(data.count.toLocaleString("ja-JP")+" 件",80,1078,42,"#ffffff","700");
+text(fmtHours(data.hours)+" 時間",520,1078,42,"#ffffff","700");
+text("1件単価",80,1126,24,"#c1d9ff");
+text("時給",520,1126,24,"#c1d9ff");
+text(data.count?yen(data.sales/data.count):"—",80,1173,38,"#ffffff","700");
+text(data.hours?yen(data.sales/data.hours):"—",520,1173,38,"#ffffff","700");
+text("MEMO",50,1258,20,"#8faddb","700");
+c.font="500 22px -apple-system,'Hiragino Sans',sans-serif";text(fit(data.memo||"—",750),150,1258,22,"#c8daf6");
+text("配達収支  /  Discord用カード",50,1311,19,"#7894bf");
+}
+function update(){
+try{draw(getData());$("discord-message").textContent="合計・PNGプレビュー更新済み";return true}
+catch(e){$("discord-message").textContent=e.message;return false}
+}
+$("discord-card-open").addEventListener("click",()=>{update();dlg.showModal()});
+$("dc-update").addEventListener("click",update);
+$("dc-download").addEventListener("click",()=>{if(!update())return;canvas.toBlob(blob=>{if(!blob){$("discord-message").textContent="PNGの生成に失敗しました";return}const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="配達収支_Discord稼働報告_"+($("dc-date").value||"日付未入力")+".png";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)},"image/png")});
+dlg.querySelector("[data-close]").addEventListener("click",()=>dlg.close());
+dlg.addEventListener("input",()=>{update()});
+update();
+})();
 </script></body></html>
