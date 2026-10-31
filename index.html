@@ -531,26 +531,29 @@ function dateButton(withYear=false){const text=withYear?new Intl.DateTimeFormat(
 function keepDialogInputVisible(){
  const input=document.activeElement;
  if(!input||!input.matches('input,select,textarea'))return;
- const dialog=input.closest('.page-dialog[open]');if(!dialog)return;
- const vv=window.visualViewport;
- const visibleHeight=vv?vv.height:window.innerHeight;
- if(dialog.classList.contains('entry-dialog')){
-   dialog.style.maxHeight=Math.max(220,Math.floor(visibleHeight-12))+'px';
- }
- const field=input.getBoundingClientRect();
- const bounds=dialog.getBoundingClientRect();
- const top=bounds.top+60,bottom=Math.min(bounds.bottom,(vv?vv.offsetTop+vv.height:innerHeight))-20;
+ const dialog=input.closest('.entry-dialog[open]');if(!dialog)return;
+ const field=input.getBoundingClientRect(),bounds=dialog.getBoundingClientRect();
+ const head=dialog.querySelector('.sheet-head');
+ const top=bounds.top+(head?head.getBoundingClientRect().height:60)+14;
+ const bottom=bounds.bottom-22;
  if(bottom<=top)return;
  if(field.bottom>bottom||field.top<top){
-   const desired=(top+bottom)/2;
-   dialog.scrollTop+=((field.top+field.bottom)/2-desired);
+   const desired=Math.max(top+field.height/2,Math.min(bottom-field.height/2,(top+bottom)/2));
+   dialog.scrollTop+=(field.top+field.height/2-desired);
  }
 }
 function updateEntryKeyboardLayout(){
- const dialog=document.querySelector('.entry-dialog[open]');
- if(!dialog)return;
+ const dialog=document.querySelector('.entry-dialog[open]');if(!dialog)return;
  const vv=window.visualViewport;
- dialog.style.maxHeight=Math.max(220,Math.floor((vv?vv.height:innerHeight)-12))+'px';
+ const visibleTop=vv?vv.offsetTop:0;
+ const visibleHeight=vv?vv.height:window.innerHeight;
+ const height=Math.max(180,Math.floor(visibleHeight-12));
+ // iOS Safari keeps fixed bottom sheets behind the software keyboard.
+ // Anchor this sheet to the visual viewport instead of the layout viewport.
+ dialog.style.top=Math.round(visibleTop+visibleHeight-height)+'px';
+ dialog.style.bottom='auto';
+ dialog.style.height=height+'px';
+ dialog.style.maxHeight=height+'px';
  requestAnimationFrame(keepDialogInputVisible);
 }
 if(window.visualViewport){window.visualViewport.addEventListener('resize',updateEntryKeyboardLayout);window.visualViewport.addEventListener('scroll',updateEntryKeyboardLayout)}
@@ -561,10 +564,10 @@ function moveNumericCaretToEnd(input){
 }
 function bindPageDialogs(){
  $$('.page-dialog').forEach(dialog=>{
- dialog.addEventListener('focusin',event=>{moveNumericCaretToEnd(event.target);requestAnimationFrame(updateEntryKeyboardLayout);setTimeout(updateEntryKeyboardLayout,250)});
+ dialog.addEventListener('focusin',event=>{moveNumericCaretToEnd(event.target);requestAnimationFrame(updateEntryKeyboardLayout);setTimeout(updateEntryKeyboardLayout,250);setTimeout(updateEntryKeyboardLayout,500)});
  dialog.addEventListener('click',event=>{const input=event.target;if(input.matches('input[inputmode="numeric"],input[inputmode="decimal"]'))requestAnimationFrame(()=>moveNumericCaretToEnd(input))});
 });
- $$("[data-open-dialog]").forEach(button=>button.onclick=()=>{if(!busy&&!restoreState)document.getElementById(button.dataset.openDialog).showModal()});
+ $("[data-open-dialog]").forEach(button=>button.onclick=()=>{if(!busy&&!restoreState){document.getElementById(button.dataset.openDialog).showModal();requestAnimationFrame(updateEntryKeyboardLayout)}});
  // Closing only hides the sheet; inputs remain in the DOM, including during a goal save.
  $$(".page-dialog [data-close-dialog]").forEach(button=>button.onclick=()=>button.closest('dialog').close());
 }
