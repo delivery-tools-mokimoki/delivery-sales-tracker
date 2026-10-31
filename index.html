@@ -752,7 +752,7 @@ $(&#x27;date&#x27;).addEventListener(&#x27;change&#x27;,applySaved);
 $(&#x27;area&#x27;).readOnly=true;
 applySaved();
 function render(){const {sales:totalSales,count:totalCount,hours}=totals();const date=$(&#x27;date&#x27;).value;$(&#x27;show-date&#x27;).textContent=date?date.replace(/-/g,&#x27;/&#x27;):&#x27;日付未選択&#x27;;$(&#x27;show-area&#x27;).textContent=&#x27;稼働地域　&#x27;+($(&#x27;area&#x27;).value.trim()||&#x27;未入力&#x27;);$(&#x27;companies&#x27;).innerHTML=companies.map(c=&gt;`&lt;div class=&quot;platform&quot; style=&quot;--accent:${c.color}&quot;&gt;&lt;div class=&quot;pname&quot;&gt;${c.name}&lt;/div&gt;&lt;div class=&quot;stats&quot;&gt;&lt;div class=&quot;stat&quot;&gt;&lt;small&gt;売上&lt;/small&gt;&lt;strong&gt;${yen(c.sales)}&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;stat&quot;&gt;&lt;small&gt;件数&lt;/small&gt;&lt;strong&gt;${c.count}件&lt;/strong&gt;&lt;/div&gt;&lt;div class=&quot;stat&quot;&gt;&lt;small&gt;平均単価&lt;/small&gt;&lt;strong&gt;${safeAvg(c.sales,c.count)}&lt;/strong&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`).join(&#x27;&#x27;);$(&#x27;total-sales&#x27;).textContent=yen(totalSales);$(&#x27;total-count&#x27;).textContent=totalCount+&#x27;件&#x27;;$(&#x27;unit&#x27;).textContent=safeAvg(totalSales,totalCount);$(&#x27;hourly&#x27;).textContent=safeAvg(totalSales,hours);$(&#x27;total-hours&#x27;).textContent=hours.toLocaleString(&#x27;ja-JP&#x27;)+&#x27;時間&#x27;}
-$(&#x27;show&#x27;).onclick=()=&gt;{render();$(&#x27;screen&#x27;).classList.add(&#x27;active&#x27;);document.body.classList.add(&#x27;screenshot&#x27;);scrollTo(0,0)};$(&#x27;back&#x27;).onclick=()=&gt;{$(&#x27;screen&#x27;).classList.remove(&#x27;active&#x27;);document.body.classList.remove(&#x27;screenshot&#x27;)};$(&#x27;save&#x27;).onclick=()=&gt;{
+$(&#x27;show&#x27;).onclick=()=&gt;{render();$(&#x27;screen&#x27;).classList.add(&#x27;active&#x27;);document.body.classList.add(&#x27;screenshot&#x27;);requestAnimationFrame(fitScreenshot);scrollTo(0,0)};$(&#x27;back&#x27;).onclick=()=&gt;{$(&#x27;screen&#x27;).classList.remove(&#x27;active&#x27;);document.body.classList.remove(&#x27;screenshot&#x27;)};$(&#x27;save&#x27;).onclick=()=&gt;{
  const {sales,count,hours}=totals(),c=document.createElement(&#x27;canvas&#x27;);c.width=960;c.height=1320;const x=c.getContext(&#x27;2d&#x27;);
  const fill=(color,a,b,w,h)=&gt;{x.fillStyle=color;x.fillRect(a,b,w,h)};
  const txt=(t,a,b,size=30,color=&#x27;#fff&#x27;,bold=false)=&gt;{x.fillStyle=color;x.font=`${bold?&#x27;700&#x27;:&#x27;500&#x27;} ${size}px -apple-system, Hiragino Sans, sans-serif`;x.fillText(String(t),a,b)};
@@ -766,11 +766,24 @@ $(&#x27;show&#x27;).onclick=()=&gt;{render();$(&#x27;screen&#x27;).classList.add
  c.toBlob(blob=&gt;{if(!blob){alert(&#x27;PNGの作成に失敗しました&#x27;);return}const url=URL.createObjectURL(blob),a=document.createElement(&#x27;a&#x27;);a.href=url;a.download=&#x27;配達収支_稼働報告_&#x27;+($(&#x27;date&#x27;).value||&#x27;未選択&#x27;)+&#x27;.png&#x27;;a.click();setTimeout(()=&gt;URL.revokeObjectURL(url),3000)},&#x27;image/png&#x27;);
 };
 
+function fitScreenshot(){
+ const screen=$(&#x27;screen&#x27;),card=$(&#x27;report&#x27;),toolbar=document.querySelector(&#x27;.toolbar&#x27;);
+ if(!screen.classList.contains(&#x27;active&#x27;))return;
+ card.style.transform=&#x27;&#x27;;card.style.transformOrigin=&#x27;&#x27;;card.style.width=&#x27;&#x27;;card.style.maxWidth=&#x27;&#x27;;
+ screen.style.height=&#x27;&#x27;;
+ const availableWidth=Math.max(240,document.documentElement.clientWidth-20);
+ const availableHeight=Math.max(250,window.innerHeight-((toolbar?.offsetHeight||0)+85));
+ const naturalWidth=card.offsetWidth,naturalHeight=card.offsetHeight;
+ const scale=Math.min(1,availableWidth/naturalWidth,availableHeight/naturalHeight);
+ if(scale&lt;1){card.style.transformOrigin=&#x27;top center&#x27;;card.style.transform=&#x27;scale(&#x27;+scale+&#x27;)&#x27;;card.style.marginBottom=&#x27;-&#x27;+(naturalHeight*(1-scale))+&#x27;px&#x27;;}
+ else card.style.marginBottom=&#x27;&#x27;;
+}
+window.addEventListener(&#x27;resize&#x27;,()=&gt;requestAnimationFrame(fitScreenshot));
 window.addEventListener(&#x27;message&#x27;,event=&gt;{
  if(event.source!==parent || !event.data || event.data.type!==&#x27;delivery-report-data&#x27;)return;
  if(event.data.root &amp;&amp; validRecordRoot(event.data.root)) imported=event.data.root;
  if(/^\d{4}-\d{2}-\d{2}$/.test(event.data.date||&#x27;&#x27;)) $(&#x27;date&#x27;).value=event.data.date;
  applySaved();
- if(event.data.autoShow){requestAnimationFrame(()=&gt;{render();$(&#x27;screen&#x27;).classList.add(&#x27;active&#x27;);document.body.classList.add(&#x27;screenshot&#x27;);scrollTo(0,0)})}
+ if(event.data.autoShow){requestAnimationFrame(()=&gt;{render();$(&#x27;screen&#x27;).classList.add(&#x27;active&#x27;);document.body.classList.add(&#x27;screenshot&#x27;);fitScreenshot();scrollTo(0,0)})}
 });
 &lt;/script&gt;&lt;/body&gt;&lt;/html&gt;" ></iframe></div></dialog><script id="discord-new-bridge">(()=>{const dlg=document.getElementById('discord-new-dialog'),frame=document.getElementById('discord-new-frame');function send(){const safe=typeof S!=='undefined'&&S&&typeof storageFault!=='undefined'&&!storageFault&&!busy&&!restoreState;const selected=typeof date!=='undefined'?date:new Date().toLocaleDateString('sv-SE');if(frame.contentWindow)frame.contentWindow.postMessage({type:'delivery-report-data',root:safe?JSON.parse(JSON.stringify(S)):null,date:selected,autoShow:true},'*')}document.getElementById('discord-card-open').addEventListener('click',()=>{dlg.showModal();send()});document.getElementById('discord-new-close').addEventListener('click',()=>dlg.close());frame.addEventListener('load',send)})();</script></body></html>
