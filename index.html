@@ -91,12 +91,6 @@ nav .tab-icon{flex-shrink:0}
 #discord-dialog .discord-area{margin:0 0 6px;font-size:14px}
 #dc-area-status{margin:0 0 14px;font-size:12px}
 #dc-area-status.error{color:var(--rd)}
-.discord-total{padding:14px;margin:0 0 14px;border:1px solid var(--ln);border-radius:12px;background:var(--input)}
-.discord-total .discord-grid{margin:10px 0}
-.discord-total .discord-grid>div{min-width:0;display:grid;gap:4px}
-.discord-total span{font-size:12px;color:var(--sb)}
-.discord-total output{font-size:clamp(14px,4vw,20px);font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-.discord-total .s{font-size:12px}
 .discord-controls{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
 .discord-controls button{border:1px solid #2370ce;border-radius:10px;background:#176de1;color:white;font-size:15px;padding:11px 14px}
 .discord-controls button[data-close]{background:transparent;color:var(--tx);border-color:var(--ln)}
@@ -140,7 +134,7 @@ nav .tab-icon{flex-shrink:0}
 <aside id="storage-warning" class="warning" role="alert" hidden></aside>
 <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
 <main id="v"></main>
-<button type="button" id="discord-card-open">Discord 稼働報告カードを作成</button>
+<button type="button" id="discord-card-open">📸 スクショ用・Discord稼働報告を作成</button>
 <details id="member-guide" class="member-guide">
 <summary>使い方ガイド（Discordメンバー向け）</summary>
 <div class="member-guide-content">
@@ -148,7 +142,7 @@ nav .tab-icon{flex-shrink:0}
 <h3>1. 売上を記録する</h3>
 <ol><li>「売上」画面で日付を選び、各社の売上・件数と、その日の合計稼働時間を入力します。</li><li>画面の保存操作で記録を保存します。入力しただけでは保存されない項目があります。</li></ol>
 <h3>2. Discord稼働報告カードを作る</h3>
-<ol><li>「Discord 稼働報告カードを作成」を押し、日付を選びます。</li><li>その日に保存した会社別の売上・件数と合計稼働時間が自動表示されます。報告画面で数字を変更しても元の売上データは変わりません。</li><li>4社の一覧の下にある<strong>共通の「稼働地域」1か所</strong>へ地域名を入力します。地域は日付別に自動保存されます。</li><li>必要ならメモを入力し、「プレビュー更新」で表示を確認してから「PNG保存」を押します。</li><li>保存した画像を自分でDiscordの稼働報告チャンネルに投稿してください。アプリから自動投稿はされません。</li></ol>
+<ol><li>「📸 スクショ用・Discord稼働報告を作成」を押し、日付を選びます。</li><li>その日に保存した会社別の売上・件数と合計稼働時間が自動表示されます。報告画面で数字を変更しても元の売上データは変わりません。</li><li>4社の一覧の下にある<strong>共通の「稼働地域」1か所</strong>へ地域名を入力します。地域は日付別に自動保存されます。</li><li>必要ならメモを入力し、「プレビュー更新」で表示を確認してから「PNG保存」を押します。</li><li>保存した画像を自分でDiscordの稼働報告チャンネルに投稿してください。アプリから自動投稿はされません。</li></ol>
 <h3>3. 保存・バックアップの注意</h3>
 <ul><li>売上や経費の記録は利用しているブラウザに保存されます。別端末・別ブラウザへの自動同期はありません。</li><li>「バックアップ」でJSONファイルを保存し、実際に保存できたことを確認してください。ブラウザのデータ削除などで記録が失われる場合があります。</li><li>バックアップJSONには記録データが入るため、DiscordやGitHubには投稿しないでください。</li><li>Discordカードから売上記録は変更されません。PNG保存前に入力内容をご自身で確認してください。</li></ul>
 <p>※試用版です。無断複製・再配布・商用利用は禁止です。</p>
