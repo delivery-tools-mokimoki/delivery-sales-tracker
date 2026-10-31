@@ -43,7 +43,7 @@ h1,h2,h3,p{overflow-wrap:anywhere}.hero h1,.page-title{font-size:22px;font-weigh
 nav{position:fixed;z-index:30;left:0;right:0;bottom:0;display:flex;background:var(--cd);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom,0px)}nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font:inherit;font-size:13px;background:none;border:0;padding:8px 0;min-height:60px;color:var(--sb)}nav button.on{color:var(--ac);font-weight:600}.tab-icon{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;flex-shrink:0}
 .tools,.warning,.notice,.storage-help{max-width:560px;margin:0 auto}.tools{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 20px;background:var(--bg);min-height:44px}.tools>b{font-size:13px;font-weight:500;color:var(--sb)}.data-tools{display:flex;gap:6px;align-items:center}.storage-help{padding:0 20px 12px}.storage-help summary,.extra-metrics>summary{font-size:13px;color:var(--sb);cursor:pointer;min-height:44px;padding:12px 0}.storage-help p{margin:4px 0 8px}.extra-metrics{font-size:13px}.extra-metrics .r{font-size:13px}.extra-metrics>.card{margin-top:4px}
 .secondary{font:inherit;font-size:14px;min-height:44px;border:1px solid var(--ac);border-radius:10px;padding:8px 12px;background:var(--cd);color:var(--ac)}#backup,#restore{position:relative;isolation:isolate;font-size:13px;min-height:44px;padding:6px 10px;border:0;background:transparent;color:var(--sb)}#backup::before,#restore::before{content:"";position:absolute;inset:5px 0;border:1px solid var(--ln);border-radius:8px;background:var(--cd);z-index:-1;pointer-events:none}
-dialog{background:var(--cd);color:var(--tx);border:1px solid var(--ln);border-radius:18px}dialog::backdrop{background:rgb(0 0 0 / .45)}.page-dialog{width:calc(100% - 24px);max-width:560px;max-height:calc(100svh - 24px);padding:0;overflow:auto;overscroll-behavior:contain}.entry-dialog{position:fixed;inset:auto 0 0;width:100%;margin:0 auto;border-radius:22px 22px 0 0;max-height:calc(100svh - env(safe-area-inset-top,0px) - 12px);max-height:calc(100dvh - env(safe-area-inset-top,0px) - 12px);background:var(--bg)}.sheet-head{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 20px;background:var(--cd);border-bottom:1px solid var(--ln);min-height:52px}.sheet-head h2{font-size:17px;font-weight:600;margin:0}.sheet-head button{font-size:15px;background:none;color:var(--ac);border:0;min-height:36px;padding:6px 0;white-space:nowrap}.sheet-content{display:grid;gap:16px;padding:20px 20px calc(24px + env(safe-area-inset-bottom,0px));min-width:0}.sheet-content>h3{font-size:17px;margin:0}.date-dialog .field{display:grid;gap:10px}.date-dialog input{width:100%;text-align:left;min-height:48px}
+dialog{background:var(--cd);color:var(--tx);border:1px solid var(--ln);border-radius:18px}dialog::backdrop{background:rgb(0 0 0 / .45)}.page-dialog{width:calc(100% - 24px);max-width:560px;max-height:calc(100svh - 24px);padding:0;overflow:auto;overscroll-behavior:contain}.entry-dialog{scroll-padding-top:68px;scroll-padding-bottom:24px;position:fixed;inset:auto 0 0;width:100%;margin:0 auto;border-radius:22px 22px 0 0;max-height:calc(100svh - env(safe-area-inset-top,0px) - 12px);max-height:calc(100dvh - env(safe-area-inset-top,0px) - 12px);background:var(--bg)}.sheet-head{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 20px;background:var(--cd);border-bottom:1px solid var(--ln);min-height:52px}.sheet-head h2{font-size:17px;font-weight:600;margin:0}.sheet-head button{font-size:15px;background:none;color:var(--ac);border:0;min-height:36px;padding:6px 0;white-space:nowrap}.sheet-content{display:grid;gap:16px;padding:20px 20px calc(24px + env(safe-area-inset-bottom,0px));min-width:0}.sheet-content>h3{font-size:17px;margin:0}.date-dialog .field{display:grid;gap:10px}.date-dialog input{width:100%;text-align:left;min-height:48px}
 #restore-dialog{width:calc(100% - 24px);max-width:480px;max-height:90svh;overflow:auto;padding:18px;overflow-wrap:anywhere}#restore-dialog h2{font-size:20px;margin:0 0 12px}#restore-dialog h3{font-size:15px;margin:12px 0 6px}#restore-dialog p{margin:8px 0}#restore-dialog .secondary{color:var(--sb);border-color:var(--ln)}.restore-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.restore-actions button{flex:1;min-width:100px}.restore-check{display:flex;align-items:flex-start;gap:8px;margin:14px 0;font-size:14px}.restore-check input{width:20px;height:20px;flex-shrink:0}.restore-summary{padding:10px;border:1px solid var(--ln);border-radius:10px;font-size:14px}#restore-status{white-space:pre-line;font-size:14px}#restore-status.error{color:var(--rd)}.warning,.notice{padding:12px 20px}.warning{background:var(--cd);border:2px solid var(--rd);overflow-wrap:anywhere}.notice{color:var(--positive-text);font-weight:600}.notice.error{color:var(--rd)}.notice.info{color:var(--sb);font-weight:400}
 .company-totals>b{font-size:15px;font-weight:500;color:var(--sb)}.goal-card .r .s{font-size:15px}.expense-divider{border-top:1px solid var(--ln);margin-top:2px}
 .page-dialog{overflow:hidden}.page-dialog[open]{display:flex;flex-direction:column}.page-dialog .sheet-head{position:static;flex-shrink:0}.page-dialog .sheet-content{min-height:0;overflow-y:auto;overscroll-behavior:contain;flex:1 1 auto}
@@ -529,13 +529,34 @@ function dateText(short=false){const d=new Date(date+'T00:00');return new Intl.D
 function dateDialogHTML(title){return `<dialog id="date-dialog" class="page-dialog date-dialog" aria-labelledby="date-title"><div class="sheet-head"><h2 id="date-title">${title}</h2><button data-close-dialog>完了</button></div><div class="sheet-content">${dt()}</div></dialog>`}
 function dateButton(withYear=false){const text=withYear?new Intl.DateTimeFormat("ja-JP",{year:"numeric",month:"long",day:"numeric"}).format(new Date(date+"T00:00")):dateText(true);return `<button class="date-trigger" data-open-dialog="date-dialog" aria-label="日付を選択">${text}</button>`}
 function keepDialogInputVisible(){
- const input=document.activeElement;if(!input||!input.matches('input,select'))return;
- const body=input.closest('.page-dialog[open] .sheet-content');if(!body)return;
- const field=input.getBoundingClientRect(),bounds=body.getBoundingClientRect(),viewport=window.visualViewport,top=Math.max(bounds.top,viewport?viewport.offsetTop:0),bottom=Math.min(bounds.bottom,viewport?viewport.offsetTop+viewport.height:innerHeight);
- if(bottom>top&&(field.top<top+12||field.bottom>bottom-12))body.scrollTop+=(field.top+field.bottom)/2-(top+bottom)/2;
+ const input=document.activeElement;
+ if(!input||!input.matches('input,select,textarea'))return;
+ const dialog=input.closest('.page-dialog[open]');if(!dialog)return;
+ const vv=window.visualViewport;
+ const visibleHeight=vv?vv.height:window.innerHeight;
+ if(dialog.classList.contains('entry-dialog')){
+   dialog.style.maxHeight=Math.max(220,Math.floor(visibleHeight-12))+'px';
+ }
+ const field=input.getBoundingClientRect();
+ const bounds=dialog.getBoundingClientRect();
+ const top=bounds.top+60,bottom=Math.min(bounds.bottom,(vv?vv.offsetTop+vv.height:innerHeight))-20;
+ if(bottom<=top)return;
+ if(field.bottom>bottom||field.top<top){
+   const desired=(top+bottom)/2;
+   dialog.scrollTop+=((field.top+field.bottom)/2-desired);
+ }
 }
+function updateEntryKeyboardLayout(){
+ const dialog=document.querySelector('.entry-dialog[open]');
+ if(!dialog)return;
+ const vv=window.visualViewport;
+ dialog.style.maxHeight=Math.max(220,Math.floor((vv?vv.height:innerHeight)-12))+'px';
+ requestAnimationFrame(keepDialogInputVisible);
+}
+if(window.visualViewport){window.visualViewport.addEventListener('resize',updateEntryKeyboardLayout);window.visualViewport.addEventListener('scroll',updateEntryKeyboardLayout)}
+window.addEventListener('resize',updateEntryKeyboardLayout);
 function bindPageDialogs(){
- $$('.page-dialog').forEach(dialog=>dialog.addEventListener('focusin',()=>requestAnimationFrame(keepDialogInputVisible)));
+ $$('.page-dialog').forEach(dialog=>dialog.addEventListener('focusin',()=>{requestAnimationFrame(updateEntryKeyboardLayout);setTimeout(updateEntryKeyboardLayout,250)}));
  $$("[data-open-dialog]").forEach(button=>button.onclick=()=>{if(!busy&&!restoreState)document.getElementById(button.dataset.openDialog).showModal()});
  // Closing only hides the sheet; inputs remain in the DOM, including during a goal save.
  $$(".page-dialog [data-close-dialog]").forEach(button=>button.onclick=()=>button.closest('dialog').close());
