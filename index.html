@@ -555,8 +555,15 @@ function updateEntryKeyboardLayout(){
 }
 if(window.visualViewport){window.visualViewport.addEventListener('resize',updateEntryKeyboardLayout);window.visualViewport.addEventListener('scroll',updateEntryKeyboardLayout)}
 window.addEventListener('resize',updateEntryKeyboardLayout);
+function moveNumericCaretToEnd(input){
+ if(!input||!input.matches('input[inputmode="numeric"],input[inputmode="decimal"]'))return;
+ try{const end=input.value.length;input.setSelectionRange(end,end)}catch{}
+}
 function bindPageDialogs(){
- $$('.page-dialog').forEach(dialog=>dialog.addEventListener('focusin',()=>{requestAnimationFrame(updateEntryKeyboardLayout);setTimeout(updateEntryKeyboardLayout,250)}));
+ $('.page-dialog').forEach(dialog=>{
+ dialog.addEventListener('focusin',event=>{moveNumericCaretToEnd(event.target);requestAnimationFrame(updateEntryKeyboardLayout);setTimeout(updateEntryKeyboardLayout,250)});
+ dialog.addEventListener('click',event=>{const input=event.target;if(input.matches('input[inputmode="numeric"],input[inputmode="decimal"]'))requestAnimationFrame(()=>moveNumericCaretToEnd(input))});
+});
  $$("[data-open-dialog]").forEach(button=>button.onclick=()=>{if(!busy&&!restoreState)document.getElementById(button.dataset.openDialog).showModal()});
  // Closing only hides the sheet; inputs remain in the DOM, including during a goal save.
  $$(".page-dialog [data-close-dialog]").forEach(button=>button.onclick=()=>button.closest('dialog').close());
