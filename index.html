@@ -547,7 +547,7 @@ function updateEntryKeyboardLayout(){
  const vv=window.visualViewport;
  const visibleTop=vv?vv.offsetTop:0;
  const visibleHeight=vv?vv.height:window.innerHeight;
- const height=Math.max(180,Math.floor(visibleHeight-12));
+ const height=Math.max(120,Math.floor(visibleHeight-12));
  // iOS Safari keeps fixed bottom sheets behind the software keyboard.
  // Anchor this sheet to the visual viewport instead of the layout viewport.
  dialog.style.top=Math.round(visibleTop+visibleHeight-height)+'px';
@@ -623,7 +623,7 @@ async function saveSalesDay(){
     });
     day.h=numberInput($("#hr").value,"稼働時間");
   }catch(e){notice(e.message,true);return false}
-  if(!Object.keys(day.p).length&&!day.h){notice(previous?"全て空欄・0のため保存しませんでした。売上の削除はカレンダーの削除ボタンから確認して行ってください。":"売上・件数・稼働時間を入力してください。",true);return false}
+  if(!Object.keys(day.p).length&&!day.h&&!previous){notice("売上・件数・稼働時間を入力してください。",true);return false}
   if(previous){const old=dsum(target),sum=Object.values(day.p).reduce((a,q)=>({s:a.s+q.s,c:a.c+q.c}),{s:0,c:0});
     if(!confirm(target+" の売上を上書きしますか？\n保存済み："+yen(old.s)+" / "+old.c+"件 / "+old.h+"時間\n変更後："+yen(sum.s)+" / "+sum.c+"件 / "+day.h+"時間\n経費は変更しません。必要なら先にJSONバックアップを書き出してください。"))return false;
   }
