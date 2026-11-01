@@ -532,25 +532,26 @@ function keepDialogInputVisible(){
  const input=document.activeElement;
  if(!input||!input.matches('input,select,textarea'))return;
  const dialog=input.closest('.entry-dialog[open]');if(!dialog)return;
- const field=input.getBoundingClientRect(),bounds=dialog.getBoundingClientRect();
- const head=dialog.querySelector('.sheet-head');
- const top=bounds.top+(head?head.getBoundingClientRect().height:60)+14;
- const bottom=bounds.bottom-22;
+ const scroller=dialog.querySelector('.sheet-content');if(!scroller)return;
+ const field=input.getBoundingClientRect(),bounds=scroller.getBoundingClientRect();
+ const top=bounds.top+12,bottom=bounds.bottom-18;
  if(bottom<=top)return;
- if(field.bottom>bottom||field.top<top){
-   const desired=Math.max(top+field.height/2,Math.min(bottom-field.height/2,(top+bottom)/2));
-   dialog.scrollTop+=(field.top+field.height/2-desired);
- }
+ if(field.bottom>bottom)scroller.scrollTop+=field.bottom-bottom;
+ else if(field.top<top)scroller.scrollTop+=field.top-top;
 }
 function updateEntryKeyboardLayout(){
  const dialog=document.querySelector('.entry-dialog[open]');if(!dialog)return;
  const vv=window.visualViewport;
- const visibleTop=vv?vv.offsetTop:0;
- const visibleHeight=vv?vv.height:window.innerHeight;
- const height=Math.max(120,Math.floor(visibleHeight-12));
- // iOS Safari keeps fixed bottom sheets behind the software keyboard.
- // Anchor this sheet to the visual viewport instead of the layout viewport.
- dialog.style.top=Math.round(visibleTop+visibleHeight-height)+'px';
+ const viewportTop=vv?vv.offsetTop:0;
+ const viewportHeight=vv?vv.height:window.innerHeight;
+ const layoutHeight=window.innerHeight;
+ const height=Math.max(120,Math.min(layoutHeight,Math.floor(viewportHeight-8)));
+ // A modal dialog uses viewport-centered layout by default. Override it explicitly.
+ // Keep its scrolling inside .sheet-content rather than scrolling the dialog.
+ dialog.style.position='fixed';
+ dialog.style.inset='auto 0 auto 0';
+ dialog.style.margin='0 auto';
+ dialog.style.top=Math.round(viewportTop+viewportHeight-height)+'px';
  dialog.style.bottom='auto';
  dialog.style.height=height+'px';
  dialog.style.maxHeight=height+'px';
