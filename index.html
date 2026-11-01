@@ -533,8 +533,10 @@ function keepDialogInputVisible(){
  if(!input||!input.matches('input,select,textarea'))return;
  const dialog=input.closest('.entry-dialog[open]');if(!dialog)return;
  const scroller=dialog.querySelector('.sheet-content');if(!scroller)return;
+ const vv=window.visualViewport;
+ const visibleBottom=vv?vv.offsetTop+vv.height:window.innerHeight;
  const field=input.getBoundingClientRect(),bounds=scroller.getBoundingClientRect();
- const top=bounds.top+12,bottom=bounds.bottom-18;
+ const top=bounds.top+12,bottom=Math.min(bounds.bottom-12,visibleBottom-18);
  if(bottom<=top)return;
  if(field.bottom>bottom)scroller.scrollTop+=field.bottom-bottom;
  else if(field.top<top)scroller.scrollTop+=field.top-top;
@@ -556,6 +558,8 @@ function updateEntryKeyboardLayout(){
  dialog.style.height=height+'px';
  dialog.style.maxHeight=height+'px';
  requestAnimationFrame(keepDialogInputVisible);
+ setTimeout(keepDialogInputVisible,120);
+ setTimeout(keepDialogInputVisible,350);
 }
 if(window.visualViewport){window.visualViewport.addEventListener('resize',updateEntryKeyboardLayout);window.visualViewport.addEventListener('scroll',updateEntryKeyboardLayout)}
 window.addEventListener('resize',updateEntryKeyboardLayout);
