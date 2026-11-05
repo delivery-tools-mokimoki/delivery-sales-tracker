@@ -744,6 +744,14 @@ function go(){
   else{
     $("#v").innerHTML=V[tab][0]();const d=$("#dt");
     if(d)d.onchange=e=>{const value=e.target.value;if(!validDate(value)){e.target.value=date;return}if(!navigate(()=>{date=value;mon=date.slice(0,7)}))e.target.value=date};
+    // Desktop Chromium/Brave does not reliably open a picker from a transparent date input.
+    // Keep the native input and its original touch behavior on iPhone.
+    if(d&&window.matchMedia('(pointer:fine)').matches&&typeof d.showPicker==='function'){
+      const dateControl=d.closest('.sales-date-select');
+      if(dateControl)dateControl.addEventListener('click',event=>{
+        try{d.showPicker();event.preventDefault()}catch{/* Keep the browser's native label behavior. */}
+      });
+    }
     V[tab][1]();bindPageDialogs();
   }
   $$("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t==tab));updateSafetyUI();
